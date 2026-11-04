@@ -1,7 +1,7 @@
 # E-WARN NEXUS
 
 > **Enterprise-Grade Decentralized Multi-Camera Video Collaboration Platform**  
-> Built for **E-WARN** by the Unified Architecture Board.
+> **Project Owner & Founder**: [Soumya Ranjan Jena (@blacksrj531)](https://github.com/blacksrj531) | **Organization**: E-WARN (*Towards Smart Future!*)
 
 [![Deploy to GitHub Pages](https://github.com/blacksrj531/EWARN-Nexus/actions/workflows/deploy.yml/badge.svg)](https://github.com/blacksrj531/EWARN-Nexus/actions/workflows/deploy.yml)
 [![License: UNLICENSED](https://img.shields.io/badge/License-Proprietary-blue.svg)](LICENSE)
@@ -90,6 +90,8 @@ This repository includes an automated GitHub Action (`.github/workflows/deploy.y
 
 ---
 
-## 👥 Contributors & Ownership
-- **Project Owner**: [E-WARN](https://github.com/blacksrj531)
+## 👥 Project Ownership & Leadership
+- **Project Owner & Founder**: [Soumya Ranjan Jena (@blacksrj531)](https://github.com/blacksrj531)
+- **Organization**: E-WARN
+- **Motto**: *Towards Smart Future!*
 - **Architectural Reference**: [Technical Blueprint](EWARN_NEXUS_TECHNICAL_BLUEPRINT.md)
