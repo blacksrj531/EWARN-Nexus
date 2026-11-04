@@ -1,23 +1,22 @@
 {
   "name": "ewarn-nexus",
   "version": "1.0.0",
-  "description": "E-WARN NEXUS — Enterprise Multi-Camera Real-Time Video Platform with RTSP/IP Cam Ingest, Dual Chat & P2P File Sharing",
-  "author": "E-WARN (blacksrj531)",
+  "description": "E-WARN NEXUS — Sovereign Multi-Camera Real-Time Video Platform",
+  "author": "Soumya Ranjan Jena (blacksrj531)",
   "license": "UNLICENSED",
   "private": true,
   "type": "module",
   "scripts": {
+    "start": "node server.js",
     "server": "node server.js",
     "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview --host"
   },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
   "devDependencies": {
     "vite": "^5.4.10"
-  },
-  "dependencies": {
-    "peerjs": "^1.5.5",
-    "trystero": "^0.21.8",
-    "ws": "^8.22.1"
   }
 }

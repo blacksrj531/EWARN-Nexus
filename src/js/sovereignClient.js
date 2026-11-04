@@ -30,12 +30,14 @@ export class SovereignWebRTCClient {
   }
 
   _connectSocket() {
-    // Dynamic host discovery: Connects to local or remote host dynamically
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.hostname || 'localhost';
-    const wsUrl = `${protocol}//${host}:3001`;
+    // If running on local machine, connect to localhost:3001
+    // If running live on GitHub Pages, connect to your sovereign public signaling server
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const wsUrl = isLocal 
+      ? 'ws://localhost:3001'
+      : 'wss://ewarn-nexus-signaling.onrender.com';
 
-    console.log(`[E-WARN Client] Establishing sovereign connection to ${wsUrl}...`);
+    console.log(`[E-WARN Client] Establishing sovereign connection to: ${wsUrl}`);
     this.ws = new WebSocket(wsUrl);
 
     this.ws.onopen = () => {
