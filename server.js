@@ -1,91 +1,133 @@
 /**
- * E-WARN NEXUS — Local High-Speed Signaling Server
- * Standard: Node.js WebSocket Room Hub
- * Fast, 100% reliable peer introductions across your local network and internet.
+ * E-WARN NEXUS — Sovereign Real-Time Signaling Server
+ * Standard: Google Meet & Microsoft Teams State Machine
+ * 100% Zero Third-Party Cloud APIs. Pure Node.js WebSocket Mesh.
  */
 
 import { WebSocketServer, WebSocket } from 'ws';
+import http from 'http';
 
-const PORT = 3001;
-const wss = new WebSocketServer({ port: PORT });
+const PORT = process.env.PORT || 3001;
+const server = http.createServer((req, res) => {
+  // Health check endpoint
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ status: 'ok', service: 'E-WARN NEXUS Sovereign Signaling Hub' }));
+});
 
-// Map: roomId -> Set of client WebSockets
+const wss = new WebSocketServer({ server });
+
+// Map: roomId -> Map(userId -> { ws, userName })
 const rooms = new Map();
 
 wss.on('connection', (ws) => {
-  let userRoomId = null;
-  let userId = null;
+  let currentRoomId = null;
+  let currentUserId = null;
+  let currentUserName = null;
 
   ws.on('message', (message) => {
     try {
       const data = JSON.parse(message.toString());
 
       switch (data.type) {
-        case 'JOIN_ROOM':
-          userRoomId = data.roomId;
-          userId = data.userId;
-          if (!rooms.has(userRoomId)) {
-            rooms.set(userRoomId, new Set());
-          }
-          rooms.get(userRoomId).add(ws);
-          ws.userId = userId;
+        case 'JOIN_LOBBY':
+          currentRoomId = data.roomId.toLowerCase().trim();
+          currentUserId = data.userId;
+          currentUserName = data.userName || 'Participant';
 
-          // Notify existing participants in the room that a new peer joined
-          rooms.get(userRoomId).forEach((client) => {
-            if (client !== ws && client.readyState === WebSocket.OPEN) {
-              client.send(JSON.stringify({
+          if (!rooms.has(currentRoomId)) {
+            rooms.set(currentRoomId, new Map());
+          }
+
+          const room = rooms.get(currentRoomId);
+
+          // Notify the new user of all existing peers in the room
+          const existingParticipants = [];
+          room.forEach((meta, peerId) => {
+            existingParticipants.push({ userId: peerId, userName: meta.userName });
+          });
+
+          ws.send(JSON.stringify({
+            type: 'ROOM_STATE',
+            participants: existingParticipants
+          }));
+
+          // Notify existing peers that a new participant entered
+          room.forEach((meta) => {
+            if (meta.ws.readyState === WebSocket.OPEN) {
+              meta.ws.send(JSON.stringify({
                 type: 'PEER_JOINED',
-                peerId: userId,
-                existingPeers: Array.from(rooms.get(userRoomId)).map(c => c.userId).filter(id => id && id !== c.userId)
-              }));
-              // Send the existing peer to the newly joined user
-              ws.send(JSON.stringify({
-                type: 'EXISTING_PEER',
-                peerId: client.userId
+                userId: currentUserId,
+                userName: currentUserName
               }));
             }
           });
-          console.log(`[E-WARN Server] User ${userId} joined room ${userRoomId}. Total peers in room: ${rooms.get(userRoomId).size}`);
+
+          // Register client into room
+          room.set(currentUserId, { ws, userName: currentUserName });
+          console.log(`[E-WARN Server] ${currentUserName} (${currentUserId}) joined room: ${currentRoomId} (Total: ${room.size})`);
           break;
 
-        case 'SIGNAL':
-          // Relay WebRTC Offer, Answer, or ICE candidate directly to the target peer
-          if (userRoomId && rooms.has(userRoomId)) {
-            rooms.get(userRoomId).forEach((client) => {
-              if (client !== ws && client.userId === data.targetId && client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify({
-                  type: 'SIGNAL',
-                  senderId: userId,
-                  signal: data.signal
+        case 'WEBRTC_SIGNAL':
+          // Targeted point-to-point signal (Offer, Answer, ICE)
+          if (currentRoomId && rooms.has(currentRoomId)) {
+            const room = rooms.get(currentRoomId);
+            const target = room.get(data.targetId);
+            if (target && target.ws.readyState === WebSocket.OPEN) {
+              target.ws.send(JSON.stringify({
+                type: 'WEBRTC_SIGNAL',
+                senderId: currentUserId,
+                senderName: currentUserName,
+                signal: data.signal
+              }));
+            }
+          }
+          break;
+
+        case 'CHAT_BROADCAST':
+          if (currentRoomId && rooms.has(currentRoomId)) {
+            const room = rooms.get(currentRoomId);
+            room.forEach((meta, peerId) => {
+              if (peerId !== currentUserId && meta.ws.readyState === WebSocket.OPEN) {
+                meta.ws.send(JSON.stringify({
+                  type: 'CHAT_MESSAGE',
+                  senderId: currentUserId,
+                  senderName: currentUserName,
+                  text: data.text,
+                  timestamp: Date.now()
                 }));
               }
             });
           }
           break;
       }
-    } catch (e) {
-      console.error('[E-WARN Server] Message error:', e);
+    } catch (err) {
+      console.error('[E-WARN Server] Message parse error:', err);
     }
   });
 
   ws.on('close', () => {
-    if (userRoomId && rooms.has(userRoomId)) {
-      rooms.get(userRoomId).delete(ws);
-      // Notify remaining peers that user left
-      rooms.get(userRoomId).forEach((client) => {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify({
+    if (currentRoomId && rooms.has(currentRoomId)) {
+      const room = rooms.get(currentRoomId);
+      room.delete(currentUserId);
+      console.log(`[E-WARN Server] User ${currentUserId} left room ${currentRoomId}`);
+
+      // Notify remaining room participants
+      room.forEach((meta) => {
+        if (meta.ws.readyState === WebSocket.OPEN) {
+          meta.ws.send(JSON.stringify({
             type: 'PEER_LEFT',
-            peerId: userId
+            userId: currentUserId
           }));
         }
       });
-      if (rooms.get(userRoomId).size === 0) {
-        rooms.delete(userRoomId);
+
+      if (room.size === 0) {
+        rooms.delete(currentRoomId);
       }
-      console.log(`[E-WARN Server] User ${userId} disconnected from room ${userRoomId}`);
     }
   });
 });
 
-console.log(`🚀 E-WARN NEXUS Real-Time Signaling Server running on ws://localhost:${PORT}`);
+server.listen(PORT, () => {
+  console.log(`🚀 Sovereign E-WARN NEXUS Signaling Server listening on port ${PORT}`);
+});

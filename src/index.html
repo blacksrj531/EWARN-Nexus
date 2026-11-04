@@ -3,13 +3,120 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>E-WARN NEXUS — Multi-Camera Enterprise Collaboration</title>
+  <title>E-WARN NEXUS — Sovereign Multi-Camera Video Collaboration</title>
   <link rel="stylesheet" href="./css/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+  <style>
+    /* LOBBY / PRE-CALL STYLING (Google & Microsoft Enterprise Standards) */
+    .lobby-screen {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .lobby-card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      text-align: center;
+    }
+
+    .lobby-preview-box {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background-color: #000;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      position: relative;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .lobby-preview-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1); /* Natural self mirror */
+    }
+
+    .lobby-preview-badge {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      color: #fff;
+    }
+
+    .btn-join-meeting {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-hover));
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 14px 24px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+      transition: transform 0.15s ease;
+    }
+
+    .btn-join-meeting:hover {
+      transform: translateY(-2px);
+    }
+  </style>
 </head>
 <body>
 
-  <div id="app">
+  <!-- LOBBY / PRE-CALL SCREEN -->
+  <div class="lobby-screen" id="lobbyScreen">
+    <div class="lobby-card">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+        <img src="./assets/ewarn-nexus-logo.jpg" alt="Logo" style="height: 42px; background: #fff; padding: 2px 6px; border-radius: 6px;">
+        <div style="text-align: left;">
+          <div style="font-weight: 800; font-size: 1.15rem; color: #fff;">E-WARN NEXUS</div>
+          <div style="font-size: 0.75rem; color: #10b981; font-weight: 700;">Towards Smart Future!</div>
+        </div>
+      </div>
+
+      <div class="lobby-preview-box">
+        <video id="lobbyPreviewVideo" class="lobby-preview-video" autoplay playsinline muted></video>
+        <div class="lobby-preview-badge">Camera Preview</div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px; text-align: left;">
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; display: block;">Your Display Name</label>
+          <input type="text" id="lobbyUserName" class="form-input" placeholder="e.g. Rahul - Engineer">
+        </div>
+
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; display: block;">Meeting Room ID</label>
+          <input type="text" id="lobbyRoomId" class="form-input" placeholder="e.g. nexus-hq">
+        </div>
+      </div>
+
+      <button class="btn-join-meeting" id="btnEnterMeeting">
+        🚀 Enter Meeting Room
+      </button>
+    </div>
+  </div>
+
+  <!-- IN-CALL APP SHELL -->
+  <div id="app" style="display: none;">
     <!-- Top Navigation Bar -->
     <header class="topbar">
       <div class="brand">
@@ -21,39 +128,34 @@
         <div class="room-status-dot"></div>
         <span class="room-id-label" id="roomIdDisplay">Room: #loading</span>
         <button class="btn-copy-room" id="btnCopyRoom" title="Copy meeting link to share with team">
-          🔗 Copy
+          🔗 Copy Link
         </button>
       </div>
 
       <div style="display: flex; gap: 8px; align-items: center;">
         <button class="btn-ctrl" id="btnToggleSidebar" title="Toggle Chat & Files">
-          💬 <span class="hide-mobile">Chat & Files</span>
+          💬 <span class="hide-mobile">Chat</span>
         </button>
       </div>
     </header>
 
     <!-- Main Workspace Stage -->
     <div class="main-stage">
-      
       <!-- Video Grid Viewport (Director Stage & Live Dock) -->
       <main class="video-canvas-container">
         <div class="video-grid" id="videoGrid" data-mode="stage" data-count="1">
-          <!-- Dynamic Video Tiles mounted here. Tap any tile to swap into the big stage! -->
+          <!-- Active video feeds mounted here -->
         </div>
       </main>
 
-      <!-- Right Sidebar (Dual Chat & P2P Files) -->
+      <!-- Right Sidebar (Dual Chat) -->
       <aside class="sidebar collapsed" id="sidebar">
         <div class="sidebar-header">
-          <div class="sidebar-tabs">
-            <button class="tab-btn active" id="tabChat">Messages</button>
-            <button class="tab-btn" id="tabFiles">Direct Files</button>
-          </div>
+          <div style="font-weight: 700; font-size: 0.9rem;">Room Chat</div>
           <button class="sidebar-close-btn" id="btnCloseSidebar">✕</button>
         </div>
 
         <div class="sidebar-content">
-          <!-- Chat Panel -->
           <div id="panelChat" style="display: flex; flex-direction: column; height: 100%;">
             <div class="chat-messages" id="chatMessages">
               <div class="msg-item" style="background: rgba(30, 41, 59, 0.4); border-style: dashed;">
@@ -62,37 +164,20 @@
                   <span>Now</span>
                 </div>
                 <div class="msg-body" style="font-size: 0.8rem; color: var(--text-muted);">
-                  Encrypted DTLS-SRTP session active. Direct memory messaging. Zero cloud footprint.
+                  Sovereign encrypted session. Zero third-party cloud APIs. Direct RAM messaging active.
                 </div>
               </div>
             </div>
 
             <div class="chat-input-bar">
-              <select class="chat-target-select" id="chatTarget">
-                <option value="ALL">📢 Everyone in Room</option>
-              </select>
               <div class="chat-input-row">
                 <input type="text" id="chatInput" placeholder="Type a message..." autocomplete="off">
                 <button class="btn-send" id="btnSendMessage">Send</button>
               </div>
             </div>
           </div>
-
-          <!-- Direct P2P File Sharing Panel -->
-          <div id="panelFiles" style="display: none; flex-direction: column; height: 100%;">
-            <div class="file-dropzone" id="fileDropzone">
-              <div style="font-size: 1.8rem; margin-bottom: 6px;">📂</div>
-              <div style="font-weight: 600; font-size: 0.88rem;">Drop or Select Files</div>
-              <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 3px;">
-                Direct peer-to-peer memory transfer.
-              </div>
-            </div>
-
-            <div class="file-list" id="fileList"></div>
-          </div>
         </div>
       </aside>
-
     </div>
 
     <!-- Bottom Control Bar -->
@@ -107,18 +192,15 @@
       </div>
 
       <div class="dock-center">
-        <!-- Desktop Multi-Camera Controls -->
         <button class="btn-ctrl active" id="btnAddCamera" style="border-color: var(--accent-emerald);">
           ➕ Add USB Camera
         </button>
         <button class="btn-ctrl" id="btnAddIPCamera" style="border-color: var(--accent-purple);">
           📡 Add IP Camera
         </button>
-        <button class="btn-ctrl" id="btnLayoutToggle" title="Toggle between Stage View and Equal Grid">
+        <button class="btn-ctrl" id="btnLayoutToggle">
           🗔 Stage View
         </button>
-
-        <!-- Mobile More Button (Visible on mobile only) -->
         <button class="btn-ctrl" id="btnMobileMore">
           ••• More
         </button>
@@ -129,7 +211,7 @@
       </div>
     </footer>
 
-    <!-- Mobile More Actions Bottom Sheet Modal -->
+    <!-- Mobile More Actions Bottom Sheet -->
     <div class="modal-overlay" id="modalMobileActions">
       <div class="modal-box" style="text-align: center;">
         <div class="modal-header">
