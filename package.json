@@ -1,0 +1,17 @@
+{
+  "name": "ewarn-nexus",
+  "version": "1.0.0",
+  "description": "E-WARN NEXUS — Enterprise Multi-Camera Real-Time Video Platform with RTSP/IP Cam Ingest, Dual Chat & P2P File Sharing",
+  "author": "E-WARN (blacksrj531)",
+  "license": "UNLICENSED",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.4.10"
+  }
+}

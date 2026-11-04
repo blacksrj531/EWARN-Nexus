@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-WARN NEXUS — Master Architecture & Project Execution Plan</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --primary: #3b82f6;
+      --primary-glow: rgba(59, 130, 246, 0.25);
+      --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.2);
+      --warning: #f59e0b;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --code-bg: #1f2937;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font);
+      line-height: 1.6;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 40px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: "";
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 250px;
+      height: 250px;
+      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      margin-bottom: 15px;
+    }
+
+    .badge-success {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      background: linear-gradient(to right, #60a5fa, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 800px;
+      margin-bottom: 25px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      padding-top: 20px;
+      border-top: 1px solid #334155;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .meta-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .meta-value {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #e2e8f0;
+    }
+
+    /* Section Styles */
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 40px 0 20px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-title span.number {
+      background: var(--primary);
+      color: #fff;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: bold;
+    }
+
+    /* Feature Cards */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 24px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .card:hover {
+      border-color: #3b82f6;
+      transform: translateY(-2px);
+    }
+
+    .card-icon {
+      font-size: 1.8rem;
+      margin-bottom: 12px;
+    }
+
+    .card h3 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: #f3f4f6;
+    }
+
+    .card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 15px;
+    }
+
+    .feature-list {
+      list-style: none;
+    }
+
+    .feature-list li {
+      position: relative;
+      padding-left: 20px;
+      margin-bottom: 8px;
+      font-size: 0.88rem;
+      color: #d1d5db;
+    }
+
+    .feature-list li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    /* Roadmap Timeline */
+    .timeline {
+      position: relative;
+      margin: 30px 0;
+      padding-left: 30px;
+      border-left: 2px solid #1f2937;
+    }
+
+    .step-item {
+      position: relative;
+      margin-bottom: 35px;
+    }
+
+    .step-item::before {
+      content: "";
+      position: absolute;
+      left: -37px;
+      top: 4px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 3px solid var(--primary);
+    }
+
+    .step-item.active::before {
+      border-color: var(--accent);
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .step-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #f3f4f6;
+    }
+
+    .step-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+    }
+
+    .step-actions {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+
+    /* Comparison Table */
+    .table-container {
+      overflow-x: auto;
+      margin: 25px 0;
+      background: var(--card-bg);
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    th {
+      background: #172033;
+      color: #f3f4f6;
+      font-weight: 600;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .badge-pill {
+      background: #1e293b;
+      color: #93c5fd;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    /* Code block */
+    pre {
+      background: var(--code-bg);
+      padding: 18px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: #e5e7eb;
+      overflow-x: auto;
+      border: 1px solid #374151;
+      margin-top: 15px;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 40px 0;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--card-border);
+      margin-top: 50px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- Header Section -->
+    <header class="header">
+      <span class="badge">Architecture & Project Execution Plan</span>
+      <span class="badge badge-success">Zero-Cost Model ($0.00)</span>
+      <h1>E-WARN NEXUS</h1>
+      <p class="subtitle">
+        A next-generation, browser-based multi-camera video conferencing platform engineered for simultaneous multi-device capture (integrated webcam + external USB cameras + local IP cameras), peer-to-peer real-time communication, and secure zero-storage file sharing.
+      </p>
+
+      <div class="meta-grid">
+        <div class="meta-item">
+          <span class="meta-label">Project Owner</span>
+          <span class="meta-value">E-WARN (<a href="https://github.com/blacksrj531" target="_blank" style="color:#60a5fa; text-decoration:none;">blacksrj531</a>)</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Repository</span>
+          <span class="meta-value">blacksrj531/EWARN-Nexus</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Local Workspace</span>
+          <span class="meta-value">D:\All Projects\EWARN_Nexus</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Target Live URL</span>
+          <span class="meta-value"><a href="https://blacksrj531.github.io/EWARN-Nexus/" target="_blank" style="color:#34d399; text-decoration:none;">blacksrj531.github.io/EWARN-Nexus/</a></span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Key Core Pillars -->
+    <h2 class="section-title"><span class="number">1</span> Core Architectural Capabilities</h2>
+    <div class="grid-2">
+
+      <div class="card">
+        <div class="card-icon">🎥</div>
+        <h3>Simultaneous Multi-Camera Ingest</h3>
+        <p>Break free from traditional single-camera meeting restrictions.</p>
+        <ul class="feature-list">
+          <li><strong>Integrated Webcam</strong>: Primary high-resolution face/speaker stream.</li>
+          <li><strong>External USB Camera(s)</strong>: Secondary angle for workbench, document view, or wide room inspection.</li>
+          <li><strong>Independent Controls</strong>: Mute, toggle, or swap individual camera feeds without disrupting the meeting.</li>
+          <li><strong>Adaptive Grid</strong>: Clean layout resizing automatically whether a user has 1, 2, or 4 active feeds.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">📡</div>
+        <h3>Local IP Camera & RTSP Integration</h3>
+        <p>Integrate CCTV, workshop, or site cameras directly into the call.</p>
+        <ul class="feature-list">
+          <li><strong>Direct Network Stream</strong>: Connect to HTTP/MJPEG streams from Hikvision, CP Plus, Dahua, and ONVIF cameras.</li>
+          <li><strong>WebRTC Canvas Relay</strong>: Relays local network cameras through the browser to remote participants on mobile or remote internet.</li>
+          <li><strong>Virtual Camera Bridge</strong>: Native support for OBS / VLC virtual camera feeds.</li>
+          <li><strong>1-Click Inclusion</strong>: Add and label site feeds (e.g., "Site Gate Cam 01").</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">💬</div>
+        <h3>Dual-Layer Chat System</h3>
+        <p>Real-time messaging engineered for operational clarity and privacy.</p>
+        <ul class="feature-list">
+          <li><strong>Public Room Chat</strong>: General room-wide announcements visible to all connected participants.</li>
+          <li><strong>Private 1-on-1 Chat</strong>: Dedicated encrypted peer channel between any two specific participants.</li>
+          <li><strong>Delivery Indicators & Timestamps</strong>: Clean timestamps and unread message indicators.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">🔒</div>
+        <h3>Zero-Storage P2P File Sharing</h3>
+        <p>Enterprise-grade file transfer without recurring cloud storage fees.</p>
+        <ul class="feature-list">
+          <li><strong>True Direct Peer-to-Peer</strong>: Files transfer directly from browser memory to browser memory.</li>
+          <li><strong>Zero Cloud Stored Files</strong>: Zero compliance risk or third-party storage fees.</li>
+          <li><strong>Real-Time Transfer Progress</strong>: Instant chunk-by-chunk progress bars with automatic download on completion.</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Zero-Cost Architecture -->
+    <h2 class="section-title"><span class="number">2</span> Zero-Cost Infrastructure Model</h2>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Platform Component</th>
+            <th>Traditional Enterprise Stack (Paid)</th>
+            <th>E-WARN NEXUS Architecture ($0.00 Free)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Hosting & CDN</strong></td>
+            <td>AWS Amplify / Vercel Pro ($20-$100/mo)</td>
+            <td><span class="badge-pill">GitHub Pages (100% Free Forever)</span></td>
+          </tr>
+          <tr>
+            <td><strong>Video Infrastructure</strong></td>
+            <td>Twilio / LiveKit Cloud ($0.004/min/user)</td>
+            <td><span class="badge-pill">Peer-to-Peer WebRTC Mesh ($0.00)</span></td>
+          </tr>
+          <tr>
+            <td><strong>NAT/Router Discovery</strong></td>
+            <td>Commercial TURN servers ($50+/mo)</td>
+            <td><span class="badge-pill">Google Public STUN (Free, No Key)</span></td>
+          </tr>
+          <tr>
+            <td><strong>File Storage</strong></td>
+            <td>AWS S3 / Google Cloud Storage ($$$)</td>
+            <td><span class="badge-pill">Encrypted P2P DataChannels ($0.00)</span></td>
+          </tr>
+          <tr>
+            <td><strong>API Key Requirement</strong></td>
+            <td>3rd-party accounts, credit cards, billing alerts</td>
+            <td><span class="badge-pill">Zero API Keys Required</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Section 2.5: User Flow & Latency -->
+    <h2 class="section-title"><span class="number">3</span> Participant Experience & Latency Profile</h2>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-icon">🚀</div>
+        <h3>Frictionless 1-Click Joining</h3>
+        <p>No downloads, no installations, zero login barriers.</p>
+        <ul class="feature-list">
+          <li><strong>Host Generates Link</strong>: Cryptographically secure room URL generated instantly with 1 click.</li>
+          <li><strong>Zero Installation</strong>: Participants join directly from any browser (Chrome, Edge, Safari) on laptops, tablets, or phones.</li>
+          <li><strong>Hardware Agility</strong>: Seamless support for users with only 1 laptop webcam, or those plugging in secondary USB cameras.</li>
+          <li><strong>IP Camera Modular Ready</strong>: IP camera ingest stays ready on demand without interfering with standard calls.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>Ultra-Low Latency (WebRTC vs GitHub)</h3>
+        <p>Decoupled Control-Plane & Peer-to-Peer Data-Plane.</p>
+        <ul class="feature-list">
+          <li><strong>GitHub Role</strong>: Only loads the web page once in &lt;1 second via its global CDN, then steps out completely.</li>
+          <li><strong>Direct Media Stream</strong>: Video & audio travel directly device-to-device with zero server detour.</li>
+          <li><strong>Latency Benchmarks</strong>: Domestic calls <strong>50ms – 150ms</strong>; International <strong>150ms – 250ms</strong>.</li>
+          <li><strong>Max-Speed File Transfers</strong>: Transfers at the true speed of your internet, free from cloud storage throttles.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Execution Roadmap -->
+    <h2 class="section-title"><span class="number">4</span> Step-by-Step Delivery Roadmap</h2>
+    <div class="timeline">
+
+      <div class="step-item active">
+        <div class="step-header">
+          <span class="badge badge-success">Phase 1</span>
+          <span class="step-title">Local Project Foundation & Security Guardrails</span>
+        </div>
+        <p class="step-desc">Establish local files, Node.js configuration, and strict security exclusions to ensure credentials or temporary files are never exposed.</p>
+        <div class="step-actions">
+          • Initialize <code>package.json</code> & directory structure in <code>D:\All Projects\EWARN_Nexus</code><br>
+          • Create strict <code>.gitignore</code> file<br>
+          • Scaffolding modern dark-theme HTML5 & CSS meeting workspace
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-header">
+          <span class="badge">Phase 2</span>
+          <span class="step-title">Hardware Ingest & Multi-Camera Engine</span>
+        </div>
+        <p class="step-desc">Build the device manager to stream the integrated laptop webcam alongside external USB cameras at the same time.</p>
+        <div class="step-actions">
+          • Enumerate all connected physical hardware devices via browser APIs<br>
+          • "Add Camera" dynamic selector button<br>
+          • Mount multiple video streams concurrently to the meeting canvas
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-header">
+          <span class="badge">Phase 3</span>
+          <span class="step-title">IP Camera Ingest, Dual Chat & P2P File Transfer</span>
+        </div>
+        <p class="step-desc">Enable network cameras, tabbed group/private chat, and direct file transfers.</p>
+        <div class="step-actions">
+          • IP camera stream connection modal (HTTP/MJPEG/Virtual relay)<br>
+          • Tabbed chat drawer (Room Broadcast & 1-on-1 Direct Messaging)<br>
+          • Chunked binary peer-to-peer file transfer engine
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-header">
+          <span class="badge">Phase 4</span>
+          <span class="step-title">Local Verification & Device Testing</span>
+        </div>
+        <p class="step-desc">Verify multi-camera feeds, audio toggles, and screen-sharing locally using Node.js dev server.</p>
+        <div class="step-actions">
+          • Run <code>npm run dev</code> for local instant testing<br>
+          • Connect secondary USB camera and verify multi-stream stability
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-header">
+          <span class="badge">Phase 5</span>
+          <span class="step-title">GitHub Repository Sync (blacksrj531/EWARN-Nexus)</span>
+        </div>
+        <p class="step-desc">Connect the local workspace to your remote GitHub account with clean, professional commit history.</p>
+        <div class="step-actions">
+          • Initialize local Git repository and stage all verified assets<br>
+          • Create blank repository on GitHub: <code>https://github.com/blacksrj531/EWARN-Nexus</code><br>
+          • Push cleanly to <code>main</code> branch
+        </div>
+      </div>
+
+      <div class="step-item">
+        <div class="step-header">
+          <span class="badge">Phase 6</span>
+          <span class="step-title">Public Launch via GitHub Pages</span>
+        </div>
+        <p class="step-desc">Automated CI/CD build goes live. Instant link distribution to colleagues or mobile devices.</p>
+        <div class="step-actions">
+          • Enable GitHub Pages in repository settings<br>
+          • Live deployment available at <code>https://blacksrj531.github.io/EWARN-Nexus/</code><br>
+          • Share room links and conduct live multi-device tests
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Repository File Structure -->
+    <h2 class="section-title"><span class="number">5</span> Workspace File Structure</h2>
+    <pre>
+D:\All Projects\EWARN_Nexus\
+├── .github/
+│   └── workflows/
+│       └── deploy.yml          # Automated GitHub Pages CI/CD deployment
+├── public/
+│   └── favicon.ico             # Application icons
+├── src/
+│   ├── index.html              # Main meeting room interface
+│   ├── css/
+│   │   ├── style.css           # Premium dark theme and responsive layout
+│   │   └── components.css      # Modal, chat drawer, and video card styles
+│   ├── js/
+│   │   ├── app.js              # Core UI coordinator & room controller
+│   │   ├── cameraManager.js    # Multi-camera hardware controller (Webcam + USBs)
+│   │   ├── ipCamera.js         # IP / Network stream & canvas bridge
+│   │   ├── p2pConnection.js    # WebRTC mesh & Google STUN setup
+│   │   ├── chatManager.js      # Public broadcast & private 1-on-1 chat
+│   │   └── fileShare.js        # Direct peer-to-peer file transfer engine
+├── .gitignore                  # Security guardrail blocking temp files & secrets
+├── package.json                # Node.js project manifest & scripts
+├── README.md                   # Professional project documentation
+└── EWARN_NEXUS_PLAN.html       # This architectural blueprint
+    </pre>
+
+    <!-- Footer -->
+    <footer>
+      E-WARN NEXUS &copy; 2026. Designed and architected for E-WARN. All rights reserved.
+    </footer>
+
+  </div>
+
+</body>
+</html>

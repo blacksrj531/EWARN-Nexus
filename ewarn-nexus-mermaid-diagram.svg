@@ -1,0 +1,217 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1674.0269999999996 1382.3000000000002" width="1674.0269999999996" height="1382.3000000000002" style="--bg:#18181B;--fg:#F4F4F5;--line:#71717A;--muted:#A1A1AA;--surface:#27272A;--border:#3F3F46;background:var(--bg)">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 85%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="arrowhead" markerWidth="8" markerHeight="5" refX="7" refY="2.5" orient="auto">
+    <polygon points="0 0, 8 2.5, 0 5" fill="var(--_arrow)" stroke="var(--_arrow)" stroke-width="0.75" stroke-linejoin="round" />
+  </marker>
+  <marker id="arrowhead-start" markerWidth="8" markerHeight="5" refX="1" refY="2.5" orient="auto-start-reverse">
+    <polygon points="8 0, 0 2.5, 8 5" fill="var(--_arrow)" stroke="var(--_arrow)" stroke-width="0.75" stroke-linejoin="round" />
+  </marker>
+</defs>
+<g class="subgraph" data-id="Client" data-label="1. Client Browser (E-WARN NEXUS Web App)">
+  <rect x="398.8599499999999" y="599.4000000000001" width="851.1099999999998" height="307.90000000000003" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <rect x="398.8599499999999" y="599.4000000000001" width="851.1099999999998" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="410.8599499999999" y="613.4000000000001" font-size="12" font-weight="600" fill="var(--_text-sec)" dy="4.199999999999999">1. Client Browser (E-WARN NEXUS Web App)</text>
+</g>
+<g class="subgraph" data-id="Ingest" data-label="2. Video Capture &amp; Multi-Stream Ingest Layer">
+  <rect x="134.5540000000001" y="357.3" width="1140.3959999999997" height="113.80000000000001" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <rect x="134.5540000000001" y="357.3" width="1140.3959999999997" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="146.5540000000001" y="371.3" font-size="12" font-weight="600" fill="var(--_text-sec)" dy="4.199999999999999">2. Video Capture &amp; Multi-Stream Ingest Layer</text>
+</g>
+<g class="subgraph" data-id="Network" data-label="3. Zero-Cost Peer-to-Peer Data &amp; Media Fabric">
+  <rect x="363.70708333333334" y="1035.6000000000001" width="1113.7199999999998" height="113.80000000000001" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <rect x="363.70708333333334" y="1035.6000000000001" width="1113.7199999999998" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="375.70708333333334" y="1049.6000000000001" font-size="12" font-weight="600" fill="var(--_text-sec)" dy="4.199999999999999">3. Zero-Cost Peer-to-Peer Data &amp; Media Fabric</text>
+</g>
+<g class="subgraph" data-id="Remote" data-label="4. Remote Participants &amp; Devices">
+  <rect x="498.9304749999999" y="1209.4" width="515.141" height="132.9" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <rect x="498.9304749999999" y="1209.4" width="515.141" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="510.9304749999999" y="1223.4" font-size="12" font-weight="600" fill="var(--_text-sec)" dy="4.199999999999999">4. Remote Participants &amp; Devices</text>
+</g>
+<g class="subgraph" data-id="DevOps" data-label="5. Zero-Cost Delivery &amp; Professional GitHub Hosting">
+  <rect x="1302.9499999999998" y="58" width="331.0769999999999" height="437.1" rx="0" ry="0" fill="var(--_group-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <rect x="1302.9499999999998" y="58" width="331.0769999999999" height="28" rx="0" ry="0" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+  <text x="1314.9499999999998" y="72" font-size="12" font-weight="600" fill="var(--_text-sec)" dy="4.199999999999999">5. Zero-Cost Delivery &amp; Professional GitHub Hosting</text>
+</g>
+<polyline class="edge" data-from="Cam1" data-to="DevMgr" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="getUserMedia()" points="272.67550000000006,467.1 272.67550000000006,537.1 345.1780083333332,537.1 345.1780083333332,581.4000000000001 746.5107999999998,581.4000000000001 746.5107999999999,667.4000000000001" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="Cam2" data-to="DevMgr" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="getUserMedia()" points="545.6595,467.1 545.6595,569.4000000000001 788.6903999999998,569.4000000000001 788.6904,667.4000000000001" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="CamN" data-to="DevMgr" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="getUserMedia()" points="1126.0839999999998,467.1 1126.0839999999998,513.1 992.634425,513.1 992.634425,569.4000000000001 856.9597999999999,569.4000000000001 856.9598,655.4000000000001 873.0495999999999,655.4000000000001 873.0495999999999,667.4000000000001" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="IPCam" data-to="DevMgr" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="Canvas Capture / Virtual Bridge" points="830.8699999999999,467.1 830.8699999999999,513.1 778.9994249999999,513.1 778.9994249999999,557.4000000000001 830.8699999999999,557.4000000000001 830.87,667.4000000000001" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="P2PEngine" data-to="Signaling" data-style="solid" data-arrow-start="true" data-arrow-end="true" data-label="Initial handshake" points="1102.5859499999997,874.1500000000001 1102.5859499999997,949.3000000000002 1095.591083333333,949.3000000000002 1095.5910833333332,1079.6000000000001" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" marker-start="url(#arrowhead-start)" />
+<polyline class="edge" data-from="P2PEngine" data-to="STUN" data-style="solid" data-arrow-start="true" data-arrow-end="true" data-label="NAT router traversal" points="1168.2779499999997,874.1500000000001 1168.2779499999997,949.3000000000002 1297.3824749999999,949.3000000000002 1297.3824749999999,1017.6000000000001 1350.420583333333,1017.6000000000001 1350.420583333333,1079.6000000000001" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" marker-start="url(#arrowhead-start)" />
+<polyline class="edge" data-from="P2PEngine" data-to="MediaTracks" data-style="solid" data-arrow-start="true" data-arrow-end="true" data-label="Direct Peer-to-Peer Streams" points="1036.8939499999997,874.1500000000001 1036.8939499999997,949.3000000000002 891.161558333333,949.3000000000002 891.161558333333,1017.6000000000001 821.4955833333331,1017.6000000000001 821.4955833333331,1079.6000000000001" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" marker-start="url(#arrowhead-start)" />
+<polyline class="edge" data-from="ChatEngine" data-to="DataChannel" data-style="solid" data-arrow-start="true" data-arrow-end="true" data-label="Direct Encrypted P2P Transfer" points="795.1454499999999,874.1500000000002 795.1454499999998,949.3000000000002 660.462308333333,949.3000000000002 660.462308333333,1017.6000000000001 521.4650833333332,1017.6000000000001 521.4650833333333,1079.6000000000001" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" marker-start="url(#arrowhead-start)" />
+<polyline class="edge" data-from="MediaTracks" data-to="UserB" data-style="solid" data-arrow-start="true" data-arrow-end="true" points="821.4955833333331,1133.4 821.4955833333331,1197.4 892.2519749999998,1197.4 892.2519749999998,1289.4" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" marker-start="url(#arrowhead-start)" />
+<polyline class="edge" data-from="MediaTracks" data-to="UserC" data-style="solid" data-arrow-start="true" data-arrow-end="true" points="821.4955833333331,1133.4 821.4955833333331,1197.4 636.6814749999999,1197.4 636.6814749999999,1289.4" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" marker-start="url(#arrowhead-start)" />
+<polyline class="edge" data-from="DataChannel" data-to="UserB" data-style="solid" data-arrow-start="true" data-arrow-end="true" points="521.4650833333333,1133.4 521.4650833333333,1197.4 892.2519749999998,1197.4 892.2519749999998,1289.4" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" marker-start="url(#arrowhead-start)" />
+<polyline class="edge" data-from="DataChannel" data-to="UserC" data-style="solid" data-arrow-start="true" data-arrow-end="true" points="521.4650833333333,1133.4 521.4650833333333,1197.4 636.6814749999999,1197.4 636.6814749999999,1289.4" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" marker-start="url(#arrowhead-start)" />
+<polyline class="edge" data-from="Client" data-to="Repo" data-style="dotted" data-arrow-start="false" data-arrow-end="true" data-label="Source Code Push" points="785.1454499999998,907.3000000000002 785.1454499999998,937.3000000000002 124.55400000000009,937.3000000000002 124.55400000000009,40 1468.4884999999997,40 1468.4884999999997,102" fill="none" stroke="var(--_line)" stroke-width="1" stroke-dasharray="4 4" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="Pages" data-to="Client" data-style="dotted" data-arrow-start="false" data-arrow-end="true" data-label="Shareable Meeting URL" points="1418.6423333333332,467.1 1418.6423333333332,581.4000000000001 866.9597999999999,581.4000000000001 866.9597999999999,599.4000000000001" fill="none" stroke="var(--_line)" stroke-width="1" stroke-dasharray="4 4" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="Pages" data-to="Remote" data-style="dotted" data-arrow-start="false" data-arrow-end="true" data-label="Shareable Meeting URL" points="1518.3346666666664,467.1 1518.3346666666664,949.3000000000002 1528.5751749999997,949.3000000000002 1528.5751749999997,1191.4 937.5251416666665,1191.4 937.5251416666665,1209.4" fill="none" stroke="var(--_line)" stroke-width="1" stroke-dasharray="4 4" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="DevMgr" data-to="UI" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="Mounts independent video tiles" points="774.6305333333332,721.2 774.6305333333332,733.2 516.9744499999999,733.2 516.9744499999999,837.5000000000001" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="DevMgr" data-to="P2PEngine" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="Pushes multiple tracks" points="844.9298666666665,721.2 844.9298666666665,733.2 1102.5859499999997,733.2 1102.5859499999997,837.2500000000001" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="Repo" data-to="Actions" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="Auto Build &amp; Deploy" points="1468.4884999999997,155.8 1468.4884999999997,272.1" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="Actions" data-to="Pages" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="Publish Static Assets" points="1468.4884999999997,309 1468.4884999999997,413.3" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<g class="edge-label" data-from="Cam1" data-to="DevMgr" data-label="getUserMedia()">
+  <rect x="299.6780083333333" y="544.1" width="90.712" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="345.0340083333333" y="559.25" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">getUserMedia()</text>
+</g>
+<g class="edge-label" data-from="Cam2" data-to="DevMgr" data-label="getUserMedia()">
+  <rect x="500.1595" y="520.1" width="90.712" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="545.5155" y="535.25" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">getUserMedia()</text>
+</g>
+<g class="edge-label" data-from="CamN" data-to="DevMgr" data-label="getUserMedia()">
+  <rect x="947.1344250000002" y="520.1" width="90.712" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="992.4904250000002" y="535.25" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">getUserMedia()</text>
+</g>
+<g class="edge-label" data-from="IPCam" data-to="DevMgr" data-label="Canvas Capture / Virtual Bridge">
+  <rect x="695.999425" y="520.1" width="165.556" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="778.777425" y="535.25" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Canvas Capture / Virtual Bridge</text>
+</g>
+<g class="edge-label" data-from="P2PEngine" data-to="Signaling" data-label="Initial handshake">
+  <rect x="1047.0910833333332" y="956.3000000000002" width="96.65200000000002" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="1095.4170833333333" y="971.4500000000002" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Initial handshake</text>
+</g>
+<g class="edge-label" data-from="P2PEngine" data-to="STUN" data-label="NAT router traversal">
+  <rect x="1238.8824749999999" y="956.3000000000002" width="116.25400000000002" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="1297.0094749999998" y="971.4500000000002" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">NAT router traversal</text>
+</g>
+<g class="edge-label" data-from="P2PEngine" data-to="MediaTracks" data-label="Direct Peer-to-Peer Streams">
+  <rect x="815.6615583333331" y="956.3000000000002" width="150.70600000000005" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="891.0145583333332" y="971.4500000000002" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Direct Peer-to-Peer Streams</text>
+</g>
+<g class="edge-label" data-from="ChatEngine" data-to="DataChannel" data-label="Direct Encrypted P2P Transfer">
+  <rect x="577.962308333333" y="956.3000000000002" width="164.368" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="660.146308333333" y="971.4500000000002" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Direct Encrypted P2P Transfer</text>
+</g>
+<g class="edge-label" data-from="Client" data-to="Repo" data-label="Source Code Push">
+  <rect x="71.05400000000009" y="900.0000000000002" width="106.75000000000001" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="124.42900000000009" y="915.1500000000002" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Source Code Push</text>
+</g>
+<g class="edge-label" data-from="Pages" data-to="Client" data-label="Shareable Meeting URL">
+  <rect x="1353.6423333333332" y="544.1" width="129.91600000000003" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="1418.6003333333333" y="559.25" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Shareable Meeting URL</text>
+</g>
+<g class="edge-label" data-from="Pages" data-to="Remote" data-label="Shareable Meeting URL">
+  <rect x="1463.5751749999997" y="956.3000000000002" width="129.91600000000003" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="1528.5331749999998" y="971.4500000000002" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Shareable Meeting URL</text>
+</g>
+<g class="edge-label" data-from="DevMgr" data-to="UI" data-label="Mounts independent video tiles">
+  <rect x="435.97444999999993" y="764.2000000000002" width="161.39799999999997" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="516.6734499999999" y="779.3500000000001" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Mounts independent video tiles</text>
+</g>
+<g class="edge-label" data-from="DevMgr" data-to="P2PEngine" data-label="Pushes multiple tracks">
+  <rect x="1040.58595" y="764.2000000000002" width="123.38200000000003" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="1102.27695" y="779.3500000000001" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Pushes multiple tracks</text>
+</g>
+<g class="edge-label" data-from="Repo" data-to="Actions" data-label="Auto Build &amp; Deploy">
+  <rect x="1414.4884999999997" y="198.8" width="107.34400000000002" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="1468.1604999999997" y="213.95000000000002" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Auto Build &amp; Deploy</text>
+</g>
+<g class="edge-label" data-from="Actions" data-to="Pages" data-label="Publish Static Assets">
+  <rect x="1409.9885" y="352" width="116.25400000000002" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="1468.1154999999999" y="367.15" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">Publish Static Assets</text>
+</g>
+<g class="node" data-id="class" data-label="class" data-shape="rectangle">
+  <rect x="40" y="837.2500000000001" width="74.554" height="36.900000000000006" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="77.277" y="855.7000000000002" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">class</text>
+</g>
+<g class="node" data-id="UI" data-label="Modern Web Interface
+(Responsive Meeting Room)" data-shape="rectangle">
+  <rect x="414.8599499999999" y="837.5000000000001" width="204.229" height="53.800000000000004" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="516.9744499999999" y="864.4000000000001" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)"><tspan x="516.9744499999999" dy="-3.9000000000000012">Modern Web Interface</tspan><tspan x="516.9744499999999" dy="16.900000000000002">(Responsive Meeting Room)</tspan></text>
+</g>
+<g class="node" data-id="DevMgr" data-label="Hardware &amp; Device Manager
+(Multi-Camera Controller)" data-shape="rectangle">
+  <rect x="704.3311999999999" y="667.4000000000001" width="210.898" height="53.800000000000004" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="809.7801999999998" y="694.3000000000001" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)"><tspan x="809.7801999999998" dy="-3.9000000000000012">Hardware &amp; Device Manager</tspan><tspan x="809.7801999999998" dy="16.900000000000002">(Multi-Camera Controller)</tspan></text>
+</g>
+<g class="node" data-id="P2PEngine" data-label="WebRTC P2P Communications Engine" data-shape="rectangle">
+  <rect x="971.2019499999998" y="837.2500000000001" width="262.7679999999999" height="36.900000000000006" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="1102.5859499999997" y="855.7000000000002" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">WebRTC P2P Communications Engine</text>
+</g>
+<g class="node" data-id="ChatEngine" data-label="Real-Time Messaging &amp; Direct File Transfer" data-shape="rectangle">
+  <rect x="647.0889499999998" y="837.2500000000001" width="296.1129999999999" height="36.900000000000006" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="795.1454499999998" y="855.7000000000002" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">Real-Time Messaging &amp; Direct File Transfer</text>
+</g>
+<g class="node" data-id="Cam1" data-label="Feed A: Integrated Laptop Webcam
+(Primary Presenter Stream)" data-shape="rectangle">
+  <rect x="150.5540000000001" y="413.3" width="244.243" height="53.800000000000004" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="272.67550000000006" y="440.2" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)"><tspan x="272.67550000000006" dy="-3.9000000000000012">Feed A: Integrated Laptop Webcam</tspan><tspan x="272.67550000000006" dy="16.900000000000002">(Primary Presenter Stream)</tspan></text>
+</g>
+<g class="node" data-id="Cam2" data-label="Feed B: External USB Camera
+(Secondary Angle / Document Cam)" data-shape="rectangle">
+  <rect x="422.797" y="413.3" width="245.72499999999997" height="53.800000000000004" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="545.6595" y="440.2" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)"><tspan x="545.6595" dy="-3.9000000000000012">Feed B: External USB Camera</tspan><tspan x="545.6595" dy="16.900000000000002">(Secondary Angle / Document Cam)</tspan></text>
+</g>
+<g class="node" data-id="CamN" data-label="Feed C: Additional USB / HDMI Capture
+(Unlimited Aux Cameras)" data-shape="rectangle">
+  <rect x="993.2179999999998" y="413.3" width="265.73199999999997" height="53.800000000000004" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="1126.0839999999998" y="440.2" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)"><tspan x="1126.0839999999998" dy="-3.9000000000000012">Feed C: Additional USB / HDMI Capture</tspan><tspan x="1126.0839999999998" dy="16.900000000000002">(Unlimited Aux Cameras)</tspan></text>
+</g>
+<g class="node" data-id="IPCam" data-label="Feed D: Local Network IP Camera
+(Direct HTTP/MJPEG or RTSP Bridge)" data-shape="rectangle">
+  <rect x="696.5219999999999" y="413.3" width="268.6959999999999" height="53.800000000000004" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="830.8699999999999" y="440.2" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)"><tspan x="830.8699999999999" dy="-3.9000000000000012">Feed D: Local Network IP Camera</tspan><tspan x="830.8699999999999" dy="16.900000000000002">(Direct HTTP/MJPEG or RTSP Bridge)</tspan></text>
+</g>
+<g class="node" data-id="STUN" data-label="Free Public STUN (Google)
+(Discovers direct router paths)" data-shape="rectangle">
+  <rect x="1239.414083333333" y="1079.6000000000001" width="222.013" height="53.800000000000004" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="1350.420583333333" y="1106.5000000000002" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)"><tspan x="1350.420583333333" dy="-3.9000000000000012">Free Public STUN (Google)</tspan><tspan x="1350.420583333333" dy="16.900000000000002">(Discovers direct router paths)</tspan></text>
+</g>
+<g class="node" data-id="Signaling" data-label="Public Zero-Key Signaling Relay
+(Connects meeting participants)" data-shape="rectangle">
+  <rect x="979.7680833333332" y="1079.6000000000001" width="231.64599999999996" height="53.800000000000004" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="1095.5910833333332" y="1106.5000000000002" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)"><tspan x="1095.5910833333332" dy="-3.9000000000000012">Public Zero-Key Signaling Relay</tspan><tspan x="1095.5910833333332" dy="16.900000000000002">(Connects meeting participants)</tspan></text>
+</g>
+<g class="node" data-id="DataChannel" data-label="Encrypted WebRTC DataChannel
+(1-on-1 Chat, Room Chat, P2P File Transfer)" data-shape="rectangle">
+  <rect x="379.70708333333334" y="1079.6000000000001" width="283.51599999999985" height="53.800000000000004" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="521.4650833333333" y="1106.5000000000002" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)"><tspan x="521.4650833333333" dy="-3.9000000000000012">Encrypted WebRTC DataChannel</tspan><tspan x="521.4650833333333" dy="16.900000000000002">(1-on-1 Chat, Room Chat, P2P File Transfer)</tspan></text>
+</g>
+<g class="node" data-id="MediaTracks" data-label="Direct WebRTC Video/Audio Mesh
+(High-speed, low-latency live streams)" data-shape="rectangle">
+  <rect x="691.2230833333332" y="1079.6000000000001" width="260.54499999999996" height="53.800000000000004" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="821.4955833333331" y="1106.5000000000002" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)"><tspan x="821.4955833333331" dy="-3.9000000000000012">Direct WebRTC Video/Audio Mesh</tspan><tspan x="821.4955833333331" dy="16.900000000000002">(High-speed, low-latency live streams)</tspan></text>
+</g>
+<g class="node" data-id="UserB" data-label="Participant 2 (Laptop / Tablet)" data-shape="rectangle">
+  <rect x="786.4324749999998" y="1289.4" width="211.63899999999998" height="36.900000000000006" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="892.2519749999998" y="1307.8500000000001" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">Participant 2 (Laptop / Tablet)</text>
+</g>
+<g class="node" data-id="UserC" data-label="Participant 3 (Smartphone / Mobile)" data-shape="rectangle">
+  <rect x="514.9304749999999" y="1289.4" width="243.50199999999995" height="36.900000000000006" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="636.6814749999999" y="1307.8500000000001" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">Participant 3 (Smartphone / Mobile)</text>
+</g>
+<g class="node" data-id="Repo" data-label="GitHub Repository
+(blacksrj531/EWARN-Nexus)" data-shape="rectangle">
+  <rect x="1364.1509999999998" y="102" width="208.67499999999998" height="53.800000000000004" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="1468.4885" y="128.9" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)"><tspan x="1468.4885" dy="-3.9000000000000012">GitHub Repository</tspan><tspan x="1468.4885" dy="16.900000000000002">(blacksrj531/EWARN-Nexus)</tspan></text>
+</g>
+<g class="node" data-id="Actions" data-label="Automated GitHub Actions CI/CD" data-shape="rectangle">
+  <rect x="1355.6294999999998" y="272.1" width="225.71799999999993" height="36.900000000000006" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="1468.4884999999997" y="290.55" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">Automated GitHub Actions CI/CD</text>
+</g>
+<g class="node" data-id="Pages" data-label="Live Hosted Platform (GitHub Pages)
+(https://blacksrj531.github.io/EWARN-Nexus)" data-shape="rectangle">
+  <rect x="1318.9499999999998" y="413.3" width="299.0769999999999" height="53.800000000000004" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="1468.4884999999997" y="440.2" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)"><tspan x="1468.4884999999997" dy="-3.9000000000000012">Live Hosted Platform (GitHub Pages)</tspan><tspan x="1468.4884999999997" dy="16.900000000000002">(https://blacksrj531.github.io/EWARN-Nexus)</tspan></text>
+</g>
+</svg>
