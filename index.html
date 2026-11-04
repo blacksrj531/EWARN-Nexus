@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-WARN NEXUS — Multi-Camera Enterprise Meeting Platform</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+  <script type="module" crossorigin src="/EWARN-Nexus/assets/index-BYMBj9eN.js"></script>
+  <link rel="stylesheet" crossorigin href="/EWARN-Nexus/assets/index-pJpxtFR1.css">
+</head>
+<body>
+
+  <div id="app">
+    <!-- Top Navigation Bar -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-logo">N</div>
+        <div class="brand-text">E-WARN NEXUS</div>
+      </div>
+
+      <div class="room-badge-container">
+        <div class="room-status-dot"></div>
+        <span class="room-id-label" id="roomIdDisplay">Room: #loading</span>
+        <button class="btn-copy-room" id="btnCopyRoom" title="Copy meeting link to share with team">
+          🔗 Copy Link
+        </button>
+      </div>
+
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <button class="btn-ctrl" id="btnToggleSidebar" title="Toggle Chat & Files">
+          💬 Chat & Files
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace Stage -->
+    <div class="main-stage">
+      
+      <!-- Video Grid Viewport -->
+      <main class="video-canvas-container">
+        <div class="video-grid" id="videoGrid" data-count="1">
+          <!-- Dynamic Video Tiles (Webcam, USBs, IP Cams) are mounted here -->
+        </div>
+      </main>
+
+      <!-- Right Sidebar (Dual Chat & P2P Files) -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-tabs">
+            <button class="tab-btn active" id="tabChat">Messages</button>
+            <button class="tab-btn" id="tabFiles">Direct Files</button>
+          </div>
+        </div>
+
+        <div class="sidebar-content">
+          <!-- Chat Panel -->
+          <div id="panelChat" style="display: flex; flex-direction: column; height: 100%;">
+            <div class="chat-messages" id="chatMessages">
+              <div class="msg-item" style="background: rgba(30, 41, 59, 0.4); border-style: dashed;">
+                <div class="msg-meta">
+                  <span class="msg-sender" style="color: var(--accent-emerald);">System Security</span>
+                  <span>Now</span>
+                </div>
+                <div class="msg-body" style="font-size: 0.8rem; color: var(--text-muted);">
+                  End-to-End Encrypted via DTLS-SRTP. Zero cloud storage. Volatile RAM messaging active.
+                </div>
+              </div>
+            </div>
+
+            <div class="chat-input-bar">
+              <select class="chat-target-select" id="chatTarget">
+                <option value="ALL">📢 Everyone in Room</option>
+              </select>
+              <div class="chat-input-row">
+                <input type="text" id="chatInput" placeholder="Type a message..." autocomplete="off">
+                <button class="btn-send" id="btnSendMessage">Send</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Direct P2P File Sharing Panel -->
+          <div id="panelFiles" style="display: none; flex-direction: column; height: 100%;">
+            <div class="file-dropzone" id="fileDropzone">
+              <div style="font-size: 2rem; margin-bottom: 8px;">📂</div>
+              <div style="font-weight: 600; font-size: 0.9rem;">Click or Drop Files Here</div>
+              <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 4px;">
+                Direct peer-to-peer transfer. Zero cloud storage.
+              </div>
+            </div>
+
+            <div class="file-list" id="fileList">
+              <!-- Outgoing & Incoming File transfers appear here -->
+            </div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+
+    <!-- Bottom Control Bar -->
+    <footer class="bottom-dock">
+      <div class="dock-left">
+        <button class="btn-ctrl" id="btnMicToggle">
+          🎤 <span class="btn-label">Mute Mic</span>
+        </button>
+        <button class="btn-ctrl" id="btnShareScreen">
+          🖥️ Screen Share
+        </button>
+      </div>
+
+      <div class="dock-center">
+        <!-- Multi-Camera Control Buttons -->
+        <button class="btn-ctrl active" id="btnAddCamera" style="border-color: var(--accent-emerald);">
+          ➕ Add USB Camera
+        </button>
+        <button class="btn-ctrl" id="btnAddIPCamera" style="border-color: var(--accent-purple);">
+          📡 Add IP / RTSP Camera
+        </button>
+      </div>
+
+      <div class="dock-right">
+        <button class="btn-leave" id="btnLeaveMeeting">Leave Call</button>
+      </div>
+    </footer>
+
+    <!-- Modal: Add USB / Hardware Camera -->
+    <div class="modal-overlay" id="modalAddCamera">
+      <div class="modal-box">
+        <div class="modal-header">
+          <div class="modal-title">Attach External Camera</div>
+          <button class="modal-close" id="btnCloseCameraModal">✕</button>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Select Video Hardware Device</label>
+          <select class="form-select" id="cameraDeviceSelect">
+            <option value="">Searching for connected USB cameras...</option>
+          </select>
+          <div class="form-helper">Plug in any USB webcam, document camera, or capture card.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Feed Label (Optional)</label>
+          <input type="text" class="form-input" id="cameraCustomLabel" placeholder="e.g. Overhead Workbench, Site Cam">
+        </div>
+        <div class="modal-footer">
+          <button class="btn-ctrl" onclick="document.getElementById('modalAddCamera').classList.remove('open')">Cancel</button>
+          <button class="btn-ctrl active" id="btnConfirmAddCamera">Start Camera Feed</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Add IP / RTSP Camera -->
+    <div class="modal-overlay" id="modalAddIPCamera">
+      <div class="modal-box">
+        <div class="modal-header">
+          <div class="modal-title">Attach Local IP / Network Camera</div>
+          <button class="modal-close" id="btnCloseIPCameraModal">✕</button>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Camera Stream URL (HTTP / MJPEG / Virtual)</label>
+          <input type="text" class="form-input" id="ipCameraUrl" placeholder="http://192.168.1.100:8080/video or mjpeg link">
+          <div class="form-helper">Supports local CCTV, CP Plus, Hikvision, Dahua HTTP streams or local companion bridge.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Camera Identifier</label>
+          <input type="text" class="form-input" id="ipCameraName" placeholder="e.g. Gate Security Cam 01">
+        </div>
+        <div class="modal-footer">
+          <button class="btn-ctrl" onclick="document.getElementById('modalAddIPCamera').classList.remove('open')">Cancel</button>
+          <button class="btn-ctrl active" id="btnConfirmAddIPCamera">Connect Feed</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+  </div>
+
+</body>
+</html>
