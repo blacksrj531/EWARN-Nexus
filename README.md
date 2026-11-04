@@ -25,24 +25,35 @@ All data, media, and file transfers operate **purely peer-to-peer (P2P)** with z
    - Plug in one or more external USB cameras and stream them simultaneously on independent video tiles.
    - Independent mute, device switching, and layout resizing.
 
-2. **Local IP / RTSP Camera Integration**:
+2. **Director Focus Stage & 1-Click Camera Swapping**:
+   - **Active Stage Mode**: One large primary viewport displaying the key feed (e.g., high-res document or workbench camera), with all other feeds docked in a live, real-time mini-filmstrip.
+   - **Instant 0ms Swap**: Tap or click any live thumbnail to immediately swap it into the main stage while the previous feed drops smoothly into the thumbnail dock without interrupting transmission.
+   - **Smart Video Mirroring**: Self-view webcam automatically mirrors horizontally for natural interaction; external USB document cameras, IP cameras, and screen shares stay in true, unmirrored orientation.
+   - **Interactive Tile Flipping**: `⇄ Flip` toggle on each card to manually invert or mirror any feed on the fly.
+
+3. **High-Definition Entire Screen Sharing**:
+   - Share entire desktop displays with optional computer audio.
+   - Strictly unmirrored presentation view running concurrently with active presenter facecam.
+
+4. **Local IP / RTSP Camera Integration**:
    - Ingest local network cameras (HTTP/MJPEG/Virtual relays from Hikvision, Dahua, CP Plus, Axis).
    - In-memory HTML5 Canvas bridge converts the local feed into an encrypted WebRTC stream.
    - **Zero Network Leakage**: Camera credentials and internal IP addresses (`192.168.x.x`) remain strictly sandboxed in your local browser; remote participants only receive encrypted video pixels.
 
-3. **Dual-Layer Real-Time Messaging**:
+5. **Dual-Layer Real-Time Messaging**:
    - **Public Room Broadcast**: Low-latency communication to all connected room members.
    - **Private 1-on-1 Chat**: Direct, peer-to-peer encrypted messaging between any two individuals.
    - **Zero Cloud Footprint**: Messages live in volatile RAM only and are permanently destroyed when the session terminates.
 
-4. **Direct Zero-Cloud P2P File Sharing**:
+6. **Direct Zero-Cloud P2P File Sharing**:
    - Chunked binary streaming (16KB/64KB) over WebRTC DataChannels.
    - Instant progress indicators and direct browser-memory download.
    - Zero file storage compliance risk or cloud bucket fees.
 
-5. **Ultra-Low Latency Media Pipeline**:
-   - Static assets delivered via **GitHub Pages Global CDN** in `< 1.0 second`.
-   - Audio/video streams directly peer-to-peer via **Google Public STUN** with **50ms – 150ms latency**.
+7. **Mobile-First Responsive Layout & Worldwide Low Latency**:
+   - Zero button overlaps across iPhones, Android devices, tablets, and wide monitors.
+   - Intelligent collapsible "••• More Actions" sheet on mobile devices.
+   - Direct P2P media routing via Google STUN with **50ms – 150ms glass-to-glass latency**.
 
 ---
 
