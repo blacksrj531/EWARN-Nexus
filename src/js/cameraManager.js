@@ -229,13 +229,11 @@ export class CameraManager {
     this.videoGrid.setAttribute('data-mode', this.layoutMode);
     this.videoGrid.setAttribute('data-count', Math.min(totalFeeds, 8).toString());
 
-    // In Stage mode: highlight featured feed, dock the others
-    for (const [id, item] of this.activeStreams) {
-      if (this.layoutMode === 'stage' && id === this.featuredStreamId) {
-        item.element.classList.add('featured-stage');
-      } else {
-        item.element.classList.remove('featured-stage');
-      }
+    // Highlight featured feed, dock the others (applies to both local and remote cards)
+    const cards = Array.from(this.videoGrid.querySelectorAll('.video-card'));
+    for (const card of cards) {
+      const isFeatured = (this.layoutMode === 'stage' && (card.dataset.streamId === this.featuredStreamId || card.id === this.featuredStreamId));
+      card.classList.toggle('featured-stage', isFeatured);
     }
   }
 

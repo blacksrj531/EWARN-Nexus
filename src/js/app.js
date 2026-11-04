@@ -5,7 +5,7 @@
 
 import { CameraManager } from './cameraManager.js';
 import { IPCameraBridge } from './ipCamera.js';
-import { P2PConnectionEngine } from './p2pEngine.js';
+import { GoogleMeetPeerMesh } from './googleMeetEngine.js';
 import { ChatAndFileEngine } from './chatAndFileEngine.js';
 
 class EwarnNexusApp {
@@ -39,8 +39,8 @@ class EwarnNexusApp {
       this.videoGrid,
       (stream, meta) => {
         this._showToast(`Added Feed: ${meta.label}`);
-        if (this.p2pEngine) {
-          this.p2pEngine.registerLocalStream(stream);
+        if (this.peerMesh) {
+          this.peerMesh.registerLocalStream(stream);
         }
       },
       (streamId) => {
@@ -51,7 +51,6 @@ class EwarnNexusApp {
     // 2. IP / RTSP Bridge
     this.ipBridge = new IPCameraBridge(this.videoGrid, (canvasStream, meta) => {
       this._showToast(`Connected Network Camera: ${meta.label}`);
-      // Mount into Stage Manager
       this.cameraManager._mountStreamTile(canvasStream, {
         id: meta.id,
         deviceId: 'ipcam',
@@ -60,34 +59,29 @@ class EwarnNexusApp {
         isPrimary: false,
         isMirrored: false
       });
-      if (this.p2pEngine) {
-        this.p2pEngine.registerLocalStream(canvasStream);
+      if (this.peerMesh) {
+        this.peerMesh.registerLocalStream(canvasStream);
       }
     });
 
-    // 3. Worldwide Two-Way WebRTC Mesh
-    this.p2pEngine = new P2PConnectionEngine(
+    // 3. Google Meet Standards Real-Time WebRTC Mesh
+    this.peerMesh = new GoogleMeetPeerMesh(
       this.roomId,
       this.localUserId,
       (peerId, remoteStream) => {
         this._handleRemoteMediaStream(peerId, remoteStream);
-      },
-      (peerId, data) => {
-        if (this.chatAndFileEngine) {
-          this.chatAndFileEngine.handleIncomingData(peerId, data);
-        }
       }
     );
 
-    // 4. Dual-Layer Chat & Direct File Sharing Engine
+    // 4. Dual-Layer Chat & File Sharing Engine
     this.chatAndFileEngine = new ChatAndFileEngine(
       this.userName,
-      (target, data) => this.p2pEngine.sendData(target, data)
+      (target, data) => {}
     );
 
     // Start Primary Camera (Presenter Webcam with Natural Mirroring)
     this.cameraManager.startPrimaryCamera().then((stream) => {
-      this.p2pEngine.registerLocalStream(stream);
+      this.peerMesh.registerLocalStream(stream);
     }).catch((e) => {
       console.warn('[E-WARN NEXUS] Camera permissions requested or denied:', e);
       this._showToast('Please grant Camera/Microphone permissions to join call.');
@@ -292,6 +286,7 @@ class EwarnNexusApp {
       remoteCard = document.createElement('div');
       remoteCard.className = 'video-card';
       remoteCard.id = `feed-remote-${peerId}`;
+      remoteCard.dataset.streamId = `feed-remote-${peerId}`;
 
       const video = document.createElement('video');
       video.autoplay = true;
@@ -302,7 +297,7 @@ class EwarnNexusApp {
       badge.className = 'video-badge';
       badge.innerHTML = `
         <span class="tag-type tag-webcam">REMOTE</span>
-        <span>${peerId.substring(0, 14)}</span>
+        <span>${peerId.substring(0, 10)}</span>
       `;
 
       // Flip toggle for remote stream
@@ -328,7 +323,10 @@ class EwarnNexusApp {
       remoteCard.appendChild(actions);
       this.videoGrid.appendChild(remoteCard);
 
-      this._showToast(`Participant joined: ${peerId.substring(0, 10)}`);
+      // Refresh layout engine so the new participant is positioned cleanly in Stage / Grid
+      this.cameraManager._applyLayoutMode();
+
+      this._showToast(`Connected with participant (${peerId.substring(0, 8)})`);
     }
   }
 
