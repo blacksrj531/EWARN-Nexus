@@ -74,30 +74,31 @@ body {
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
-.brand-logo {
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+.brand-logo-img {
+  height: 42px;
+  width: auto;
   border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 900;
-  color: #fff;
-  font-size: 1.1rem;
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+  background-color: #ffffff;
+  padding: 3px 6px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  object-fit: contain;
 }
 
-.brand-text {
-  font-weight: 800;
-  font-size: 1.15rem;
+.brand-tagline {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #10b981;
   letter-spacing: 0.5px;
-  background: linear-gradient(to right, #60a5fa, #c084fc);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .brand-tagline {
+    display: block;
+  }
 }
 
 .room-badge-container {
