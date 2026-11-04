@@ -5,7 +5,7 @@
 
 import { CameraManager } from './cameraManager.js';
 import { IPCameraBridge } from './ipCamera.js';
-import { GoogleMeetPeerMesh } from './googleMeetEngine.js';
+import { ProductionP2PMesh } from './productionMesh.js';
 import { ChatAndFileEngine } from './chatAndFileEngine.js';
 
 class EwarnNexusApp {
@@ -39,8 +39,8 @@ class EwarnNexusApp {
       this.videoGrid,
       (stream, meta) => {
         this._showToast(`Added Feed: ${meta.label}`);
-        if (this.peerMesh) {
-          this.peerMesh.registerLocalStream(stream);
+        if (this.mesh) {
+          this.mesh.registerLocalStream(stream);
         }
       },
       (streamId) => {
@@ -59,29 +59,34 @@ class EwarnNexusApp {
         isPrimary: false,
         isMirrored: false
       });
-      if (this.peerMesh) {
-        this.peerMesh.registerLocalStream(canvasStream);
+      if (this.mesh) {
+        this.mesh.registerLocalStream(canvasStream);
       }
     });
 
-    // 3. Google Meet Standards Real-Time WebRTC Mesh
-    this.peerMesh = new GoogleMeetPeerMesh(
+    // 3. Robust Multi-Transport WebRTC Mesh
+    this.mesh = new ProductionP2PMesh(
       this.roomId,
       this.localUserId,
       (peerId, remoteStream) => {
         this._handleRemoteMediaStream(peerId, remoteStream);
+      },
+      (peerId, data) => {
+        if (this.chatAndFileEngine) {
+          this.chatAndFileEngine.handleIncomingData(peerId, data);
+        }
       }
     );
 
     // 4. Dual-Layer Chat & File Sharing Engine
     this.chatAndFileEngine = new ChatAndFileEngine(
       this.userName,
-      (target, data) => {}
+      (target, data) => this.mesh.sendData(target, data)
     );
 
     // Start Primary Camera (Presenter Webcam with Natural Mirroring)
     this.cameraManager.startPrimaryCamera().then((stream) => {
-      this.peerMesh.registerLocalStream(stream);
+      this.mesh.registerLocalStream(stream);
     }).catch((e) => {
       console.warn('[E-WARN NEXUS] Camera permissions requested or denied:', e);
       this._showToast('Please grant Camera/Microphone permissions to join call.');
