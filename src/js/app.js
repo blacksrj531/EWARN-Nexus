@@ -5,7 +5,7 @@
 
 import { CameraManager } from './cameraManager.js';
 import { IPCameraBridge } from './ipCamera.js';
-import { ProductionP2PMesh } from './productionMesh.js';
+import { LocalNetworkMesh } from './localMesh.js';
 import { ChatAndFileEngine } from './chatAndFileEngine.js';
 
 class EwarnNexusApp {
@@ -64,8 +64,8 @@ class EwarnNexusApp {
       }
     });
 
-    // 3. Robust Multi-Transport WebRTC Mesh
-    this.mesh = new ProductionP2PMesh(
+    // 3. Guaranteed Local Network P2P Mesh
+    this.mesh = new LocalNetworkMesh(
       this.roomId,
       this.localUserId,
       (peerId, remoteStream) => {

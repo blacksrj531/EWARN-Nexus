@@ -7,15 +7,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "server": "node server.js",
+    "dev": "vite --host",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview --host"
   },
   "devDependencies": {
     "vite": "^5.4.10"
   },
   "dependencies": {
     "peerjs": "^1.5.5",
-    "trystero": "^0.21.8"
+    "trystero": "^0.21.8",
+    "ws": "^8.22.1"
   }
 }
