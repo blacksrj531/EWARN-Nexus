@@ -1,7 +1,6 @@
 /**
- * E-WARN NEXUS — Multi-Camera Hardware Controller
- * Standard: Microsoft Azure Media Services & WebRTC Track Multiplexing
- * Capability: Ingests Laptop Webcam AND Multiple External USB Cameras Simultaneously
+ * E-WARN NEXUS — Multi-Camera Hardware Controller & Director Focus Stage Engine
+ * Standards: Google Chromium Media Stream & Apple Director Stage Layout
  */
 
 export class CameraManager {
@@ -9,37 +8,39 @@ export class CameraManager {
     this.videoGrid = videoGridElement;
     this.onStreamAdded = onStreamAdded;
     this.onStreamRemoved = onStreamRemoved;
-    
-    // Map of active streams: streamId -> { stream, deviceId, label, type, videoElement }
+
+    // Active streams map: streamId -> { stream, deviceId, label, type, isMirrored, element, videoElement }
     this.activeStreams = new Map();
     this.audioTrack = null;
     this.isAudioMuted = false;
+
+    // Layout Mode: 'stage' (Director Focus Mode) vs 'grid' (Equal Grid)
+    this.layoutMode = 'stage';
+    this.featuredStreamId = null;
   }
 
   /**
-   * Enumerate all connected physical video capture devices
+   * Enumerate physical capture devices
    */
   async getAvailableVideoDevices() {
     try {
-      // Must request temporary permission to read hardware labels
       const tempStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       tempStream.getTracks().forEach(t => t.stop());
-
       const devices = await navigator.mediaDevices.enumerateDevices();
-      return devices.filter(device => device.kind === 'videoinput');
+      return devices.filter(d => d.kind === 'videoinput');
     } catch (err) {
-      console.error('[E-WARN CameraManager] Error enumerating devices:', err);
+      console.error('[E-WARN CameraManager] Device enumeration error:', err);
       throw err;
     }
   }
 
   /**
-   * Start Primary Camera (Typically the integrated laptop webcam)
+   * Start Primary Presenter Webcam (Default: Mirrored for natural self-view)
    */
   async startPrimaryCamera(preferredDeviceId = null) {
     try {
       const constraints = {
-        video: preferredDeviceId ? { deviceId: { exact: preferredDeviceId } } : { facingMode: 'user' },
+        video: preferredDeviceId ? { deviceId: { exact: preferredDeviceId } } : { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
@@ -48,8 +49,6 @@ export class CameraManager {
       };
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      
-      // Store the shared audio track
       const audioTracks = stream.getAudioTracks();
       if (audioTracks.length > 0) {
         this.audioTrack = audioTracks[0];
@@ -57,32 +56,32 @@ export class CameraManager {
 
       const videoTrack = stream.getVideoTracks()[0];
       const deviceId = videoTrack.getSettings().deviceId;
-      const label = videoTrack.label || 'Primary Webcam';
+      const label = videoTrack.label || 'Presenter Webcam';
 
       this._mountStreamTile(stream, {
         id: stream.id,
         deviceId,
         label,
         type: 'webcam',
-        isPrimary: true
+        isPrimary: true,
+        isMirrored: true // Natural mirror for self face
       });
 
       return stream;
     } catch (err) {
-      console.error('[E-WARN CameraManager] Failed to start primary camera:', err);
+      console.error('[E-WARN CameraManager] Primary camera error:', err);
       throw err;
     }
   }
 
   /**
-   * Add a Secondary / Aux Camera Feed (External USB Camera, Document Cam, etc.)
+   * Add External USB Camera Feed (Default: Unmirrored for readable documents/text)
    */
   async addSecondaryCamera(deviceId, customLabel = null) {
     try {
-      // Prevent duplicate capture of the exact same device
       for (const [_, item] of this.activeStreams) {
         if (item.deviceId === deviceId) {
-          throw new Error('This camera device is already active in your meeting layout.');
+          throw new Error('This camera hardware is already active in your meeting.');
         }
       }
 
@@ -91,42 +90,44 @@ export class CameraManager {
           deviceId: { exact: deviceId },
           width: { ideal: 1280 },
           height: { ideal: 720 },
-          frameRate: { ideal: 30 }
+          frameRate: { ideal: 24 } // Efficient bandwidth scaling
         },
-        audio: false // Auxiliary cameras do not duplicate audio to prevent mic feedback
+        audio: false // No duplicate audio to prevent acoustic feedback
       };
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       const videoTrack = stream.getVideoTracks()[0];
-      const label = customLabel || videoTrack.label || 'USB Camera Feed';
+      const label = customLabel || videoTrack.label || 'Auxiliary USB Camera';
 
       this._mountStreamTile(stream, {
         id: stream.id,
         deviceId,
         label,
         type: 'usb',
-        isPrimary: false
+        isPrimary: false,
+        isMirrored: false // Unmirrored for reading text & schematics
       });
 
       return stream;
     } catch (err) {
-      console.error('[E-WARN CameraManager] Failed to attach secondary camera:', err);
+      console.error('[E-WARN CameraManager] USB camera error:', err);
       throw err;
     }
   }
 
   /**
-   * Mount stream into DOM and update the video grid layout
+   * Mount stream into DOM with Director Stage & Flip capabilities
    */
   _mountStreamTile(stream, meta) {
     const card = document.createElement('div');
-    card.className = 'video-card';
+    card.className = `video-card ${meta.isMirrored ? 'mirrored' : ''}`;
     card.id = `feed-${meta.id}`;
+    card.dataset.streamId = meta.id;
 
     const video = document.createElement('video');
     video.autoplay = true;
     video.playsInline = true;
-    video.muted = true; // Local preview is always muted to avoid local feedback
+    video.muted = true;
     video.srcObject = stream;
 
     // Badge Label
@@ -137,18 +138,38 @@ export class CameraManager {
       <span>${meta.label}</span>
     `;
 
-    // Action Controls (Stop feed)
+    // Action Controls (Flip Mirror, Stop feed)
     const actions = document.createElement('div');
     actions.className = 'video-card-actions';
-    
+
+    // Flip Mirror Toggle Button
+    const flipBtn = document.createElement('button');
+    flipBtn.className = 'btn-card-action';
+    flipBtn.title = 'Flip / Mirror orientation';
+    flipBtn.innerHTML = '⇄';
+    flipBtn.onclick = (e) => {
+      e.stopPropagation();
+      this.toggleMirror(meta.id);
+    };
+    actions.appendChild(flipBtn);
+
+    // Stop Feed Button
     if (!meta.isPrimary) {
       const stopBtn = document.createElement('button');
       stopBtn.className = 'btn-card-action';
       stopBtn.title = 'Close this camera feed';
       stopBtn.innerHTML = '✕';
-      stopBtn.onclick = () => this.stopStream(meta.id);
+      stopBtn.onclick = (e) => {
+        e.stopPropagation();
+        this.stopStream(meta.id);
+      };
       actions.appendChild(stopBtn);
     }
+
+    // Tap or Click to Focus / Swap into Main Stage
+    card.onclick = () => {
+      this.setFeaturedStream(meta.id);
+    };
 
     card.appendChild(video);
     card.appendChild(badge);
@@ -163,7 +184,12 @@ export class CameraManager {
       videoElement: video
     });
 
-    this._updateGridLayout();
+    // Default first stream to be featured
+    if (!this.featuredStreamId) {
+      this.featuredStreamId = meta.id;
+    }
+
+    this._applyLayoutMode();
 
     if (this.onStreamAdded) {
       this.onStreamAdded(stream, meta);
@@ -171,57 +197,76 @@ export class CameraManager {
   }
 
   /**
-   * Stop an individual camera stream
+   * Toggle Mirroring on an individual video feed
    */
+  toggleMirror(streamId) {
+    const item = this.activeStreams.get(streamId);
+    if (!item) return;
+    item.isMirrored = !item.isMirrored;
+    item.element.classList.toggle('mirrored', item.isMirrored);
+  }
+
+  /**
+   * Set a specific stream to be the large Featured Stage
+   */
+  setFeaturedStream(streamId) {
+    if (!this.activeStreams.has(streamId)) return;
+    this.featuredStreamId = streamId;
+    this._applyLayoutMode();
+  }
+
+  /**
+   * Toggle between Director Stage and Equal Grid
+   */
+  toggleLayoutMode() {
+    this.layoutMode = this.layoutMode === 'stage' ? 'grid' : 'stage';
+    this._applyLayoutMode();
+    return this.layoutMode;
+  }
+
+  _applyLayoutMode() {
+    const totalFeeds = this.videoGrid.children.length;
+    this.videoGrid.setAttribute('data-mode', this.layoutMode);
+    this.videoGrid.setAttribute('data-count', Math.min(totalFeeds, 8).toString());
+
+    // In Stage mode: highlight featured feed, dock the others
+    for (const [id, item] of this.activeStreams) {
+      if (this.layoutMode === 'stage' && id === this.featuredStreamId) {
+        item.element.classList.add('featured-stage');
+      } else {
+        item.element.classList.remove('featured-stage');
+      }
+    }
+  }
+
   stopStream(streamId) {
-    const streamMeta = this.activeStreams.get(streamId);
-    if (!streamMeta) return;
+    const item = this.activeStreams.get(streamId);
+    if (!item) return;
 
-    // Stop physical tracks to turn off camera hardware LED
-    streamMeta.stream.getTracks().forEach(track => track.stop());
-
-    // Remove from UI
-    if (streamMeta.element && streamMeta.element.parentNode) {
-      streamMeta.element.parentNode.removeChild(streamMeta.element);
+    item.stream.getTracks().forEach(t => t.stop());
+    if (item.element && item.element.parentNode) {
+      item.element.parentNode.removeChild(item.element);
     }
 
     this.activeStreams.delete(streamId);
-    this._updateGridLayout();
+
+    // If the stopped stream was featured, switch focus to another active stream
+    if (this.featuredStreamId === streamId) {
+      const remainingIds = Array.from(this.activeStreams.keys());
+      this.featuredStreamId = remainingIds.length > 0 ? remainingIds[0] : null;
+    }
+
+    this._applyLayoutMode();
 
     if (this.onStreamRemoved) {
       this.onStreamRemoved(streamId);
     }
   }
 
-  /**
-   * Toggle Audio Mute across the call
-   */
   toggleAudio() {
     if (!this.audioTrack) return false;
     this.isAudioMuted = !this.isAudioMuted;
     this.audioTrack.enabled = !this.isAudioMuted;
     return !this.isAudioMuted;
-  }
-
-  /**
-   * Dynamically adjust grid layout css based on active stream count
-   */
-  _updateGridLayout() {
-    const totalFeeds = this.videoGrid.children.length;
-    this.videoGrid.setAttribute('data-count', Math.min(totalFeeds, 8).toString());
-  }
-
-  /**
-   * Retrieve all currently active local media tracks
-   */
-  getAllLocalTracks() {
-    const tracks = [];
-    if (this.audioTrack) tracks.push(this.audioTrack);
-
-    for (const [_, item] of this.activeStreams) {
-      const vTrack = item.stream.getVideoTracks()[0];
-      if (vTrack) tracks.push(vTrack);
-    }
-    return tracks;
   }
 }

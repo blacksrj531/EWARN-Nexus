@@ -1,5 +1,6 @@
 /**
- * E-WARN NEXUS — Main Application Coordinator
+ * E-WARN NEXUS — Main Application Coordinator (v1.1)
+ * Enhanced with Director Focus Stage, Smart Mirroring, Worldwide Two-Way Mesh, and Mobile Layout Engine
  */
 
 import { CameraManager } from './cameraManager.js';
@@ -11,7 +12,7 @@ class EwarnNexusApp {
   constructor() {
     this.videoGrid = document.getElementById('videoGrid');
     this.roomId = this._getOrCreateRoomId();
-    this.localUserId = 'usr_' + Math.random().toString(36).substring(2, 9);
+    this.localUserId = 'usr_' + Math.random().toString(36).substring(2, 8);
     this.userName = 'Operator-' + Math.floor(100 + Math.random() * 900);
 
     this._initElements();
@@ -33,15 +34,13 @@ class EwarnNexusApp {
   }
 
   _initEngines() {
-    // 1. Multi-Camera Hardware Manager
+    // 1. Multi-Camera Hardware Controller & Director Focus Stage
     this.cameraManager = new CameraManager(
       this.videoGrid,
       (stream, meta) => {
         this._showToast(`Added Feed: ${meta.label}`);
-        // Add new track to existing peer connections
-        const vTrack = stream.getVideoTracks()[0];
-        if (vTrack && this.p2pEngine) {
-          this.p2pEngine.addTrackToPeers(vTrack, stream);
+        if (this.p2pEngine) {
+          this.p2pEngine.registerLocalStream(stream);
         }
       },
       (streamId) => {
@@ -52,18 +51,26 @@ class EwarnNexusApp {
     // 2. IP / RTSP Bridge
     this.ipBridge = new IPCameraBridge(this.videoGrid, (canvasStream, meta) => {
       this._showToast(`Connected Network Camera: ${meta.label}`);
-      const vTrack = canvasStream.getVideoTracks()[0];
-      if (vTrack && this.p2pEngine) {
-        this.p2pEngine.addTrackToPeers(vTrack, canvasStream);
+      // Mount into Stage Manager
+      this.cameraManager._mountStreamTile(canvasStream, {
+        id: meta.id,
+        deviceId: 'ipcam',
+        label: meta.label,
+        type: 'ipcam',
+        isPrimary: false,
+        isMirrored: false
+      });
+      if (this.p2pEngine) {
+        this.p2pEngine.registerLocalStream(canvasStream);
       }
     });
 
-    // 3. P2P WebRTC Engine
+    // 3. Worldwide Two-Way WebRTC Mesh
     this.p2pEngine = new P2PConnectionEngine(
       this.roomId,
       this.localUserId,
-      (peerId, remoteStream, track) => {
-        this._handleRemoteMediaTrack(peerId, remoteStream, track);
+      (peerId, remoteStream) => {
+        this._handleRemoteMediaStream(peerId, remoteStream);
       },
       (peerId, data) => {
         if (this.chatAndFileEngine) {
@@ -72,15 +79,17 @@ class EwarnNexusApp {
       }
     );
 
-    // 4. Chat & Direct File Sharing Engine
+    // 4. Dual-Layer Chat & Direct File Sharing Engine
     this.chatAndFileEngine = new ChatAndFileEngine(
       this.userName,
       (target, data) => this.p2pEngine.sendData(target, data)
     );
 
-    // Automatically initialize primary camera
-    this.cameraManager.startPrimaryCamera().catch((e) => {
-      console.warn('[E-WARN NEXUS] Camera permission requested or denied:', e);
+    // Start Primary Camera (Presenter Webcam with Natural Mirroring)
+    this.cameraManager.startPrimaryCamera().then((stream) => {
+      this.p2pEngine.registerLocalStream(stream);
+    }).catch((e) => {
+      console.warn('[E-WARN NEXUS] Camera permissions requested or denied:', e);
       this._showToast('Please grant Camera/Microphone permissions to join call.');
     });
   }
@@ -89,7 +98,7 @@ class EwarnNexusApp {
     // Copy meeting URL
     document.getElementById('btnCopyRoom').onclick = () => {
       navigator.clipboard.writeText(window.location.href);
-      this._showToast('Meeting Link Copied to Clipboard!');
+      this._showToast('Meeting link copied! Send it to your team.');
     };
 
     // Mic Mute Toggle
@@ -97,15 +106,69 @@ class EwarnNexusApp {
     btnMic.onclick = () => {
       const isEnabled = this.cameraManager.toggleAudio();
       btnMic.classList.toggle('danger', !isEnabled);
-      btnMic.querySelector('.btn-label').innerText = isEnabled ? 'Mute Mic' : 'Unmute Mic';
+      btnMic.querySelector('.btn-label').innerText = isEnabled ? 'Mute' : 'Unmute';
       this._showToast(isEnabled ? 'Microphone Active' : 'Microphone Muted');
     };
 
-    // Add Secondary Camera Modal Trigger
+    // Entire Screen Share Handler
+    const handleScreenShare = async () => {
+      try {
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({
+          video: { cursor: 'always', displaySurface: 'monitor' },
+          audio: true // Captures native system sound
+        });
+
+        this.cameraManager._mountStreamTile(screenStream, {
+          id: 'screen-' + Date.now(),
+          deviceId: 'screen',
+          label: 'Entire Screen Share',
+          type: 'screen',
+          isPrimary: false,
+          isMirrored: false // Screen share must never be mirrored
+        });
+
+        // Auto-feature the screen share onto the big stage
+        this.cameraManager.setFeaturedStream('screen-' + Date.now());
+
+        if (this.p2pEngine) {
+          this.p2pEngine.registerLocalStream(screenStream);
+        }
+
+        screenStream.getVideoTracks()[0].onended = () => {
+          this.cameraManager.stopStream('screen-' + Date.now());
+        };
+      } catch (e) {
+        console.warn('Screen share canceled or denied', e);
+      }
+    };
+
+    document.getElementById('btnShareScreen').onclick = handleScreenShare;
+    document.getElementById('mBtnShareScreen').onclick = () => {
+      document.getElementById('modalMobileActions').classList.remove('open');
+      handleScreenShare();
+    };
+
+    // Layout Toggle Handler (Director Stage vs Equal Grid)
+    const handleLayoutToggle = (btn) => {
+      const mode = this.cameraManager.toggleLayoutMode();
+      btn.innerText = mode === 'stage' ? '🗔 Stage View' : '⊞ Grid View';
+      this._showToast(`Switched to ${mode === 'stage' ? 'Director Focus Stage' : 'Equal Grid'} View`);
+    };
+
+    const btnLayout = document.getElementById('btnLayoutToggle');
+    btnLayout.onclick = () => handleLayoutToggle(btnLayout);
+
+    const mBtnLayout = document.getElementById('mBtnLayoutToggle');
+    mBtnLayout.onclick = () => {
+      document.getElementById('modalMobileActions').classList.remove('open');
+      handleLayoutToggle(btnLayout);
+    };
+
+    // Add Secondary Camera Modal Triggers
     const modalCamera = document.getElementById('modalAddCamera');
-    document.getElementById('btnAddCamera').onclick = async () => {
+    const openCameraModal = async () => {
       const select = document.getElementById('cameraDeviceSelect');
-      select.innerHTML = '<option value="">Loading devices...</option>';
+      select.innerHTML = '<option value="">Searching for connected USB cameras...</option>';
       modalCamera.classList.add('open');
 
       try {
@@ -126,6 +189,12 @@ class EwarnNexusApp {
       }
     };
 
+    document.getElementById('btnAddCamera').onclick = openCameraModal;
+    document.getElementById('mBtnAddCamera').onclick = () => {
+      document.getElementById('modalMobileActions').classList.remove('open');
+      openCameraModal();
+    };
+
     document.getElementById('btnConfirmAddCamera').onclick = async () => {
       const select = document.getElementById('cameraDeviceSelect');
       const customName = document.getElementById('cameraCustomLabel').value.trim();
@@ -144,10 +213,14 @@ class EwarnNexusApp {
       modalCamera.classList.remove('open');
     };
 
-    // Add IP Camera Modal Trigger
+    // Add IP Camera Modal Triggers
     const modalIP = document.getElementById('modalAddIPCamera');
-    document.getElementById('btnAddIPCamera').onclick = () => {
-      modalIP.classList.add('open');
+    const openIPModal = () => modalIP.classList.add('open');
+
+    document.getElementById('btnAddIPCamera').onclick = openIPModal;
+    document.getElementById('mBtnAddIPCamera').onclick = () => {
+      document.getElementById('modalMobileActions').classList.remove('open');
+      openIPModal();
     };
 
     document.getElementById('btnConfirmAddIPCamera').onclick = async () => {
@@ -167,13 +240,25 @@ class EwarnNexusApp {
       modalIP.classList.remove('open');
     };
 
+    // Mobile More Actions Sheet
+    const modalMobile = document.getElementById('modalMobileActions');
+    document.getElementById('btnMobileMore').onclick = () => {
+      modalMobile.classList.add('open');
+    };
+    document.getElementById('btnCloseMobileActions').onclick = () => {
+      modalMobile.classList.remove('open');
+    };
+
     // Sidebar Toggles
     const sidebar = document.getElementById('sidebar');
     document.getElementById('btnToggleSidebar').onclick = () => {
       sidebar.classList.toggle('collapsed');
     };
+    document.getElementById('btnCloseSidebar').onclick = () => {
+      sidebar.classList.add('collapsed');
+    };
 
-    // Tab Buttons
+    // Chat / File Tab Switching
     document.getElementById('tabChat').onclick = (e) => {
       e.target.classList.add('active');
       document.getElementById('tabFiles').classList.remove('active');
@@ -188,22 +273,6 @@ class EwarnNexusApp {
       document.getElementById('panelFiles').style.display = 'flex';
     };
 
-    // Screen Share
-    document.getElementById('btnShareScreen').onclick = async () => {
-      try {
-        const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-        this.cameraManager._mountStreamTile(screenStream, {
-          id: 'screen-' + Date.now(),
-          deviceId: 'screen',
-          label: 'Screen Share',
-          type: 'usb',
-          isPrimary: false
-        });
-      } catch (e) {
-        console.warn('Screen share canceled or failed', e);
-      }
-    };
-
     // Leave Meeting
     document.getElementById('btnLeaveMeeting').onclick = () => {
       if (confirm('Are you sure you want to disconnect from E-WARN NEXUS?')) {
@@ -214,12 +283,15 @@ class EwarnNexusApp {
     };
   }
 
-  _handleRemoteMediaTrack(peerId, remoteStream, track) {
-    let remoteCard = document.getElementById(`feed-remote-${track.id}`);
+  /**
+   * Handle Inbound Remote Media Stream from Connected Participant
+   */
+  _handleRemoteMediaStream(peerId, remoteStream) {
+    let remoteCard = document.getElementById(`feed-remote-${peerId}`);
     if (!remoteCard) {
       remoteCard = document.createElement('div');
       remoteCard.className = 'video-card';
-      remoteCard.id = `feed-remote-${track.id}`;
+      remoteCard.id = `feed-remote-${peerId}`;
 
       const video = document.createElement('video');
       video.autoplay = true;
@@ -230,15 +302,33 @@ class EwarnNexusApp {
       badge.className = 'video-badge';
       badge.innerHTML = `
         <span class="tag-type tag-webcam">REMOTE</span>
-        <span>Peer: ${peerId.substring(0, 8)}</span>
+        <span>${peerId.substring(0, 14)}</span>
       `;
+
+      // Flip toggle for remote stream
+      const actions = document.createElement('div');
+      actions.className = 'video-card-actions';
+      const flipBtn = document.createElement('button');
+      flipBtn.className = 'btn-card-action';
+      flipBtn.title = 'Flip orientation';
+      flipBtn.innerHTML = '⇄';
+      flipBtn.onclick = (e) => {
+        e.stopPropagation();
+        remoteCard.classList.toggle('mirrored');
+      };
+      actions.appendChild(flipBtn);
+
+      // Tap to feature on Main Stage
+      remoteCard.onclick = () => {
+        this.cameraManager.setFeaturedStream(remoteCard.id);
+      };
 
       remoteCard.appendChild(video);
       remoteCard.appendChild(badge);
+      remoteCard.appendChild(actions);
       this.videoGrid.appendChild(remoteCard);
 
-      const totalFeeds = this.videoGrid.children.length;
-      this.videoGrid.setAttribute('data-count', Math.min(totalFeeds, 8).toString());
+      this._showToast(`Participant joined: ${peerId.substring(0, 10)}`);
     }
   }
 
@@ -254,7 +344,6 @@ class EwarnNexusApp {
   }
 }
 
-// Bootstrap application on DOM readiness
 window.addEventListener('DOMContentLoaded', () => {
   new EwarnNexusApp();
 });

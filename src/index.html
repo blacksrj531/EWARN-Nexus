@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>E-WARN NEXUS — Multi-Camera Enterprise Meeting Platform</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>E-WARN NEXUS — Multi-Camera Enterprise Collaboration</title>
   <link rel="stylesheet" href="./css/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
 </head>
@@ -21,13 +21,13 @@
         <div class="room-status-dot"></div>
         <span class="room-id-label" id="roomIdDisplay">Room: #loading</span>
         <button class="btn-copy-room" id="btnCopyRoom" title="Copy meeting link to share with team">
-          🔗 Copy Link
+          🔗 Copy
         </button>
       </div>
 
-      <div style="display: flex; gap: 10px; align-items: center;">
+      <div style="display: flex; gap: 8px; align-items: center;">
         <button class="btn-ctrl" id="btnToggleSidebar" title="Toggle Chat & Files">
-          💬 Chat & Files
+          💬 <span class="hide-mobile">Chat & Files</span>
         </button>
       </div>
     </header>
@@ -35,20 +35,21 @@
     <!-- Main Workspace Stage -->
     <div class="main-stage">
       
-      <!-- Video Grid Viewport -->
+      <!-- Video Grid Viewport (Director Stage & Live Dock) -->
       <main class="video-canvas-container">
-        <div class="video-grid" id="videoGrid" data-count="1">
-          <!-- Dynamic Video Tiles (Webcam, USBs, IP Cams) are mounted here -->
+        <div class="video-grid" id="videoGrid" data-mode="stage" data-count="1">
+          <!-- Dynamic Video Tiles mounted here. Tap any tile to swap into the big stage! -->
         </div>
       </main>
 
       <!-- Right Sidebar (Dual Chat & P2P Files) -->
-      <aside class="sidebar" id="sidebar">
+      <aside class="sidebar collapsed" id="sidebar">
         <div class="sidebar-header">
           <div class="sidebar-tabs">
             <button class="tab-btn active" id="tabChat">Messages</button>
             <button class="tab-btn" id="tabFiles">Direct Files</button>
           </div>
+          <button class="sidebar-close-btn" id="btnCloseSidebar">✕</button>
         </div>
 
         <div class="sidebar-content">
@@ -57,11 +58,11 @@
             <div class="chat-messages" id="chatMessages">
               <div class="msg-item" style="background: rgba(30, 41, 59, 0.4); border-style: dashed;">
                 <div class="msg-meta">
-                  <span class="msg-sender" style="color: var(--accent-emerald);">System Security</span>
+                  <span class="msg-sender" style="color: var(--accent-emerald);">E-WARN Security</span>
                   <span>Now</span>
                 </div>
                 <div class="msg-body" style="font-size: 0.8rem; color: var(--text-muted);">
-                  End-to-End Encrypted via DTLS-SRTP. Zero cloud storage. Volatile RAM messaging active.
+                  Encrypted DTLS-SRTP session active. Direct memory messaging. Zero cloud footprint.
                 </div>
               </div>
             </div>
@@ -80,16 +81,14 @@
           <!-- Direct P2P File Sharing Panel -->
           <div id="panelFiles" style="display: none; flex-direction: column; height: 100%;">
             <div class="file-dropzone" id="fileDropzone">
-              <div style="font-size: 2rem; margin-bottom: 8px;">📂</div>
-              <div style="font-weight: 600; font-size: 0.9rem;">Click or Drop Files Here</div>
-              <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 4px;">
-                Direct peer-to-peer transfer. Zero cloud storage.
+              <div style="font-size: 1.8rem; margin-bottom: 6px;">📂</div>
+              <div style="font-weight: 600; font-size: 0.88rem;">Drop or Select Files</div>
+              <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 3px;">
+                Direct peer-to-peer memory transfer.
               </div>
             </div>
 
-            <div class="file-list" id="fileList">
-              <!-- Outgoing & Incoming File transfers appear here -->
-            </div>
+            <div class="file-list" id="fileList"></div>
           </div>
         </div>
       </aside>
@@ -100,27 +99,59 @@
     <footer class="bottom-dock">
       <div class="dock-left">
         <button class="btn-ctrl" id="btnMicToggle">
-          🎤 <span class="btn-label">Mute Mic</span>
+          🎤 <span class="btn-label">Mute</span>
         </button>
-        <button class="btn-ctrl" id="btnShareScreen">
-          🖥️ Screen Share
+        <button class="btn-ctrl" id="btnShareScreen" title="Share entire display">
+          🖥️ <span class="btn-label">Entire Screen</span>
         </button>
       </div>
 
       <div class="dock-center">
-        <!-- Multi-Camera Control Buttons -->
+        <!-- Desktop Multi-Camera Controls -->
         <button class="btn-ctrl active" id="btnAddCamera" style="border-color: var(--accent-emerald);">
           ➕ Add USB Camera
         </button>
         <button class="btn-ctrl" id="btnAddIPCamera" style="border-color: var(--accent-purple);">
-          📡 Add IP / RTSP Camera
+          📡 Add IP Camera
+        </button>
+        <button class="btn-ctrl" id="btnLayoutToggle" title="Toggle between Stage View and Equal Grid">
+          🗔 Stage View
+        </button>
+
+        <!-- Mobile More Button (Visible on mobile only) -->
+        <button class="btn-ctrl" id="btnMobileMore">
+          ••• More
         </button>
       </div>
 
       <div class="dock-right">
-        <button class="btn-leave" id="btnLeaveMeeting">Leave Call</button>
+        <button class="btn-leave" id="btnLeaveMeeting">Leave</button>
       </div>
     </footer>
+
+    <!-- Mobile More Actions Bottom Sheet Modal -->
+    <div class="modal-overlay" id="modalMobileActions">
+      <div class="modal-box" style="text-align: center;">
+        <div class="modal-header">
+          <div class="modal-title">Meeting Tools</div>
+          <button class="modal-close" id="btnCloseMobileActions">✕</button>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+          <button class="btn-ctrl" id="mBtnAddCamera" style="justify-content: center; padding: 12px;">
+            ➕ Add USB / External Camera
+          </button>
+          <button class="btn-ctrl" id="mBtnAddIPCamera" style="justify-content: center; padding: 12px;">
+            📡 Add Local IP Camera
+          </button>
+          <button class="btn-ctrl" id="mBtnShareScreen" style="justify-content: center; padding: 12px;">
+            🖥️ Share Entire Screen
+          </button>
+          <button class="btn-ctrl" id="mBtnLayoutToggle" style="justify-content: center; padding: 12px;">
+            🗔 Switch View (Stage / Grid)
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- Modal: Add USB / Hardware Camera -->
     <div class="modal-overlay" id="modalAddCamera">
@@ -142,7 +173,7 @@
         </div>
         <div class="modal-footer">
           <button class="btn-ctrl" onclick="document.getElementById('modalAddCamera').classList.remove('open')">Cancel</button>
-          <button class="btn-ctrl active" id="btnConfirmAddCamera">Start Camera Feed</button>
+          <button class="btn-ctrl active" id="btnConfirmAddCamera">Start Feed</button>
         </div>
       </div>
     </div>

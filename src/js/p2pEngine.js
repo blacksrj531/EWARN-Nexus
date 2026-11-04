@@ -1,216 +1,169 @@
 /**
- * E-WARN NEXUS — WebRTC Peer Mesh & Google STUN Engine
- * Zero Cost ($0.00), Zero Server Video Relaying, Direct Hardware Encryption
+ * E-WARN NEXUS — Worldwide Two-Way WebRTC Mesh Engine
+ * Powered by Open Cloud Peer Mesh + Google STUN
+ * Enables True Two-Way Cross-Device & Cross-Internet Video Calls (Zero Paid APIs)
  */
 
+import { Peer } from 'peerjs';
+
 export class P2PConnectionEngine {
-  constructor(roomId, localUserId, onRemoteTrack, onDataReceived) {
+  constructor(roomId, localUserId, onRemoteStream, onDataReceived) {
     this.roomId = roomId;
     this.localUserId = localUserId;
-    this.onRemoteTrack = onRemoteTrack;
+    this.onRemoteStream = onRemoteStream;
     this.onDataReceived = onDataReceived;
 
-    // Active RTCPeerConnections: peerId -> RTCPeerConnection
-    this.peers = new Map();
-    // Active DataChannels: peerId -> RTCDataChannel
-    this.dataChannels = new Map();
+    this.activeCalls = new Map(); // peerId -> mediaConnection
+    this.activeConnections = new Map(); // peerId -> dataConnection
+    this.localStreams = [];
 
-    // Standard Google Public STUN Configuration (100% Free, Zero Key)
-    this.rtcConfig = {
-      iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' },
-        { urls: 'stun:stun2.l.google.com:19302' }
-      ]
-    };
-
-    // Public Zero-Key Signaling BroadcastChannel (works locally across tabs)
-    // + Public WebSocket / Relay Fallback for WAN mesh
-    this.broadcastChannel = new BroadcastChannel(`ewarn_room_${this.roomId}`);
-    this._initSignaling();
+    this._initPeerMesh();
   }
 
-  _initSignaling() {
-    this.broadcastChannel.onmessage = async (event) => {
-      const data = event.data;
-      if (!data || data.senderId === this.localUserId) return;
+  _initPeerMesh() {
+    // Generate clean unique peer identifier tied to the room prefix
+    const cleanRoom = this.roomId.replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase();
+    this.fullPeerId = `ewarn-${cleanRoom}-${this.localUserId}`;
 
-      switch (data.type) {
-        case 'PEER_JOINED':
-          await this._createPeerConnection(data.senderId, true);
-          break;
-
-        case 'OFFER':
-          await this._handleRemoteOffer(data.senderId, data.sdp);
-          break;
-
-        case 'ANSWER':
-          await this._handleRemoteAnswer(data.senderId, data.sdp);
-          break;
-
-        case 'ICE_CANDIDATE':
-          await this._handleIceCandidate(data.senderId, data.candidate);
-          break;
-
-        case 'PEER_LEFT':
-          this._closePeerConnection(data.senderId);
-          break;
-      }
-    };
-
-    // Announce presence in room
-    this.broadcastChannel.postMessage({
-      type: 'PEER_JOINED',
-      senderId: this.localUserId,
-      timestamp: Date.now()
+    this.peer = new Peer(this.fullPeerId, {
+      config: {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' },
+          { urls: 'stun:stun2.l.google.com:19302' }
+        ]
+      },
+      debug: 1
     });
-  }
 
-  async _createPeerConnection(peerId, isInitiator) {
-    if (this.peers.has(peerId)) return this.peers.get(peerId);
+    this.peer.on('open', (id) => {
+      console.log('[E-WARN P2P] Connected to Worldwide Mesh with Peer ID:', id);
+      this._broadcastPresence();
+    });
 
-    const pc = new RTCPeerConnection(this.rtcConfig);
-    this.peers.set(peerId, pc);
+    // Inbound Media Call from remote participant
+    this.peer.on('call', (mediaConnection) => {
+      // Answer with local primary stream if available, or empty stream
+      const primaryStream = this.localStreams[0] || new MediaStream();
+      mediaConnection.answer(primaryStream);
 
-    // Track remote media
-    pc.ontrack = (event) => {
-      if (this.onRemoteTrack) {
-        this.onRemoteTrack(peerId, event.streams[0], event.track);
-      }
-    };
-
-    // Handle ICE candidates
-    pc.onicecandidate = (event) => {
-      if (event.candidate) {
-        this.broadcastChannel.postMessage({
-          type: 'ICE_CANDIDATE',
-          senderId: this.localUserId,
-          targetId: peerId,
-          candidate: event.candidate
-        });
-      }
-    };
-
-    if (isInitiator) {
-      // Create DataChannel for Chat & File Sharing
-      const dc = pc.createDataChannel('ewarn_datachannel', { ordered: true });
-      this._setupDataChannel(peerId, dc);
-
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-
-      this.broadcastChannel.postMessage({
-        type: 'OFFER',
-        senderId: this.localUserId,
-        targetId: peerId,
-        sdp: pc.localDescription
+      mediaConnection.on('stream', (remoteStream) => {
+        if (this.onRemoteStream) {
+          this.onRemoteStream(mediaConnection.peer, remoteStream);
+        }
       });
-    } else {
-      pc.ondatachannel = (event) => {
-        this._setupDataChannel(peerId, event.channel);
-      };
-    }
 
-    return pc;
-  }
-
-  async _handleRemoteOffer(peerId, sdp) {
-    const pc = await this._createPeerConnection(peerId, false);
-    await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
-
-    this.broadcastChannel.postMessage({
-      type: 'ANSWER',
-      senderId: this.localUserId,
-      targetId: peerId,
-      sdp: pc.localDescription
+      this.activeCalls.set(mediaConnection.peer, mediaConnection);
     });
-  }
 
-  async _handleRemoteAnswer(peerId, sdp) {
-    const pc = this.peers.get(peerId);
-    if (pc) {
-      await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-    }
-  }
+    // Inbound Data Connection (Chat & File Sharing)
+    this.peer.on('connection', (dataConnection) => {
+      this._setupDataConnection(dataConnection);
+    });
 
-  async _handleIceCandidate(peerId, candidate) {
-    const pc = this.peers.get(peerId);
-    if (pc && candidate) {
-      try {
-        await pc.addIceCandidate(new RTCIceCandidate(candidate));
-      } catch (e) {
-        console.warn('[E-WARN P2P] ICE candidate addition error:', e);
-      }
-    }
-  }
+    this.peer.on('error', (err) => {
+      console.warn('[E-WARN P2P] Mesh notice:', err.type, err.message);
+    });
 
-  _setupDataChannel(peerId, dc) {
-    dc.binaryType = 'arraybuffer';
-    this.dataChannels.set(peerId, dc);
-
-    dc.onmessage = (event) => {
-      if (this.onDataReceived) {
-        this.onDataReceived(peerId, event.data);
+    // Fallback broadcast channel for same-machine discovery
+    this.localChannel = new BroadcastChannel(`ewarn_room_${this.roomId}`);
+    this.localChannel.onmessage = (e) => {
+      if (e.data && e.data.peerId && e.data.peerId !== this.fullPeerId) {
+        this.connectToPeer(e.data.peerId);
       }
     };
-
-    dc.onclose = () => {
-      this.dataChannels.delete(peerId);
-    };
   }
 
-  _closePeerConnection(peerId) {
-    const pc = this.peers.get(peerId);
-    if (pc) {
-      pc.close();
-      this.peers.delete(peerId);
-    }
-    this.dataChannels.delete(peerId);
+  _broadcastPresence() {
+    this.localChannel.postMessage({
+      type: 'DISCOVERY',
+      peerId: this.fullPeerId
+    });
   }
 
   /**
-   * Broadcast or send private data payload across DataChannels
+   * Connect to a remote peer (Call media + Open DataChannel)
    */
-  sendData(targetPeerId, payload) {
-    const serialized = typeof payload === 'string' ? payload : JSON.stringify(payload);
+  connectToPeer(remotePeerId) {
+    if (remotePeerId === this.fullPeerId || this.activeCalls.has(remotePeerId)) return;
 
-    if (targetPeerId && targetPeerId !== 'ALL') {
-      // Private 1-on-1 direct message
-      const dc = this.dataChannels.get(targetPeerId);
-      if (dc && dc.readyState === 'open') {
-        dc.send(serialized);
+    // 1. Establish Media Call
+    const primaryStream = this.localStreams[0] || new MediaStream();
+    const call = this.peer.call(remotePeerId, primaryStream);
+
+    if (call) {
+      call.on('stream', (remoteStream) => {
+        if (this.onRemoteStream) {
+          this.onRemoteStream(remotePeerId, remoteStream);
+        }
+      });
+      this.activeCalls.set(remotePeerId, call);
+    }
+
+    // 2. Establish DataChannel
+    const conn = this.peer.connect(remotePeerId);
+    if (conn) {
+      this._setupDataConnection(conn);
+    }
+  }
+
+  _setupDataConnection(conn) {
+    conn.on('open', () => {
+      this.activeConnections.set(conn.peer, conn);
+    });
+
+    conn.on('data', (data) => {
+      if (this.onDataReceived) {
+        this.onDataReceived(conn.peer, data);
       }
-    } else {
-      // Public Room broadcast
-      for (const [_, dc] of this.dataChannels) {
-        if (dc.readyState === 'open') {
-          dc.send(serialized);
+    });
+
+    conn.on('close', () => {
+      this.activeConnections.delete(conn.peer);
+    });
+  }
+
+  /**
+   * Register local media stream to share with peers
+   */
+  registerLocalStream(stream) {
+    this.localStreams.push(stream);
+    // Push new tracks to all currently active media calls
+    const vTrack = stream.getVideoTracks()[0];
+    if (vTrack) {
+      for (const [_, call] of this.activeCalls) {
+        if (call.peerConnection) {
+          call.peerConnection.addTrack(vTrack, stream);
         }
       }
     }
   }
 
   /**
-   * Add a new local media track to all connected peers
+   * Send chat or file payload across the peer mesh
    */
-  addTrackToPeers(track, stream) {
-    for (const [_, pc] of this.peers) {
-      pc.addTrack(track, stream);
+  sendData(targetPeerId, payload) {
+    if (targetPeerId && targetPeerId !== 'ALL') {
+      const conn = this.activeConnections.get(targetPeerId);
+      if (conn && conn.open) {
+        conn.send(payload);
+      }
+    } else {
+      // Broadcast to all connected peers
+      for (const [_, conn] of this.activeConnections) {
+        if (conn.open) {
+          conn.send(payload);
+        }
+      }
     }
   }
 
   disconnect() {
-    this.broadcastChannel.postMessage({
-      type: 'PEER_LEFT',
-      senderId: this.localUserId
-    });
-    for (const [_, pc] of this.peers) {
-      pc.close();
-    }
-    this.peers.clear();
-    this.dataChannels.clear();
+    if (this.localChannel) this.localChannel.close();
+    for (const [_, call] of this.activeCalls) call.close();
+    for (const [_, conn] of this.activeConnections) conn.close();
+    if (this.peer) this.peer.destroy();
+    this.activeCalls.clear();
+    this.activeConnections.clear();
   }
 }
