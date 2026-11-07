@@ -260,6 +260,30 @@ export class SovereignWebRTCClient {
     }
   }
 
+  /**
+   * Hot-swap video track for Camera Flip (Front ⇄ Rear) without dropping call
+   */
+  async replaceVideoTrack(newTrack) {
+    if (!newTrack) return;
+    for (const [targetId, peerObj] of this.peers) {
+      try {
+        const senders = peerObj.pc.getSenders();
+        const videoSender = senders.find(s => s.track && s.track.kind === 'video');
+        if (videoSender) {
+          await videoSender.replaceTrack(newTrack);
+          console.log(`[E-WARN Client] Replaced video track for peer: ${targetId}`);
+        } else {
+          peerObj.pc.addTrack(newTrack);
+          const offer = await peerObj.pc.createOffer();
+          await peerObj.pc.setLocalDescription(offer);
+          this._sendSignal(targetId, { type: 'OFFER', sdp: peerObj.pc.localDescription });
+        }
+      } catch (err) {
+        console.error(`[E-WARN Client] Failed to replace video track for ${targetId}:`, err);
+      }
+    }
+  }
+
   _teardownPeer(userId) {
     if (this.peers.has(userId)) {
       const p = this.peers.get(userId);

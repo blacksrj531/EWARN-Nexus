@@ -306,17 +306,69 @@ class EwarnNexusApp {
 
     // Mic Mute Toggle
     const btnMic = document.getElementById('btnMicToggle');
-    btnMic.onclick = () => {
-      if (this.localStream) {
-        const audio = this.localStream.getAudioTracks()[0];
-        if (audio) {
-          audio.enabled = !audio.enabled;
-          btnMic.classList.toggle('danger', !audio.enabled);
-          btnMic.innerText = audio.enabled ? '🎤' : '🔇';
-          this._showToast(audio.enabled ? 'Microphone Active' : 'Microphone Muted');
+    if (btnMic) {
+      btnMic.onclick = () => {
+        if (this.localStream) {
+          const audio = this.localStream.getAudioTracks()[0];
+          if (audio) {
+            audio.enabled = !audio.enabled;
+            btnMic.classList.toggle('danger', !audio.enabled);
+            btnMic.innerText = audio.enabled ? '🎤' : '🔇';
+            this._showToast(audio.enabled ? 'Microphone Active' : 'Microphone Muted');
+          }
         }
+      };
+    }
+
+    // Camera Video On/Off Toggle
+    const btnVideo = document.getElementById('btnVideoToggle');
+    if (btnVideo) {
+      btnVideo.onclick = () => {
+        if (this.localStream) {
+          const videoTrack = this.localStream.getVideoTracks()[0];
+          if (videoTrack) {
+            videoTrack.enabled = !videoTrack.enabled;
+            btnVideo.classList.toggle('danger', !videoTrack.enabled);
+            btnVideo.innerText = videoTrack.enabled ? '📹' : '📷';
+            this._showToast(videoTrack.enabled ? 'Camera Started' : 'Camera Stopped');
+          }
+        }
+      };
+    }
+
+    // Front / Rear Mobile Camera Switcher (Native Android & iOS WebRTC)
+    const handleSwitchCamera = async () => {
+      if (!this.localStream) {
+        this._showToast('No active camera to switch');
+        return;
+      }
+      try {
+        this._showToast('Switching camera...');
+        const result = await this.cameraManager.switchMobileCamera(this.localStream.id, async (newTrack) => {
+          if (this.client) {
+            await this.client.replaceVideoTrack(newTrack);
+          }
+        });
+        const modeLabel = result.facingMode === 'environment' ? 'Rear / Back Camera' : 'Front Selfie Camera';
+        this._showToast(`Active: ${modeLabel}`);
+      } catch (err) {
+        console.error('Camera switch failed:', err);
+        this._showToast('Could not switch camera hardware');
       }
     };
+
+    const btnSwitchCam = document.getElementById('btnSwitchCamera');
+    if (btnSwitchCam) {
+      btnSwitchCam.onclick = handleSwitchCamera;
+    }
+
+    const mBtnSwitchCam = document.getElementById('mBtnSwitchCamera');
+    if (mBtnSwitchCam) {
+      mBtnSwitchCam.onclick = () => {
+        document.getElementById('modalMobileActions')?.classList.remove('open');
+        handleSwitchCamera();
+      };
+    }
 
     // Entire Screen Share
     const handleScreenShare = async () => {

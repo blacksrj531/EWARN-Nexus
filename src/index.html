@@ -203,14 +203,22 @@
         <button class="btn-round-ctrl" id="btnMicToggle" title="Toggle Microphone">
           🎤
         </button>
-        <!-- Camera Toggle / Screen Share -->
+        <!-- Video On/Off Toggle -->
+        <button class="btn-round-ctrl" id="btnVideoToggle" title="Toggle Camera On/Off">
+          📹
+        </button>
+        <!-- Mobile & Tablet Camera Flip Button (Front / Rear Camera Switch) -->
+        <button class="btn-round-ctrl" id="btnSwitchCamera" title="Switch between Front and Rear Camera">
+          🔄
+        </button>
+        <!-- Desktop Screen Share -->
         <button class="btn-round-ctrl" id="btnShareScreen" title="Share Screen">
           🖥️
         </button>
       </div>
 
       <div class="dock-center">
-        <!-- Modern Google Pill Controls -->
+        <!-- Modern Google Pill Controls (Desktop) -->
         <button class="btn-pill-ctrl" id="btnAddCamera" style="border-color: rgba(52, 168, 83, 0.4);">
           ➕ Add USB Camera
         </button>
@@ -221,7 +229,7 @@
           🗔 Stage View
         </button>
 
-        <!-- Mobile More Button -->
+        <!-- Mobile More Actions Pill Button -->
         <button class="btn-round-ctrl" id="btnMobileMore" style="display: none;" title="More options">
           •••
         </button>
@@ -242,6 +250,9 @@
           <button class="modal-close" id="btnCloseMobileActions">✕</button>
         </div>
         <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+          <button class="btn-pill-ctrl" id="mBtnSwitchCamera" style="justify-content: center; width: 100%;">
+            🔄 Switch to Rear / Front Camera
+          </button>
           <button class="btn-pill-ctrl" id="mBtnAddCamera" style="justify-content: center; width: 100%;">
             ➕ Add USB / External Camera
           </button>

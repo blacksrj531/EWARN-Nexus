@@ -75,6 +75,82 @@ export class CameraManager {
   }
 
   /**
+   * Seamlessly Toggle Front (User) & Rear (Environment) Camera on Mobile/Tablet
+   * Google Meet / Android CameraX Standard
+   */
+  async switchMobileCamera(currentStreamId, onNewTrackCallback) {
+    const item = this.activeStreams.get(currentStreamId);
+    if (!item || !item.stream) {
+      throw new Error('Primary camera stream not found');
+    }
+
+    const currentTrack = item.stream.getVideoTracks()[0];
+    const currentFacing = currentTrack?.getSettings()?.facingMode || (item.isMirrored ? 'user' : 'environment');
+    const targetFacing = currentFacing === 'user' ? 'environment' : 'user';
+
+    console.log(`[E-WARN CameraManager] Switching camera from ${currentFacing} to ${targetFacing}`);
+
+    try {
+      const newStream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { exact: targetFacing },
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        },
+        audio: false // Retain existing audio track
+      });
+
+      const newTrack = newStream.getVideoTracks()[0];
+
+      // Stop old video track
+      if (currentTrack) {
+        currentTrack.stop();
+        item.stream.removeTrack(currentTrack);
+      }
+
+      // Add new video track to existing stream
+      item.stream.addTrack(newTrack);
+
+      // Environment (Rear) camera is NOT mirrored; User (Front) camera IS mirrored
+      item.isMirrored = (targetFacing === 'user');
+      item.element.classList.toggle('mirrored', item.isMirrored);
+
+      if (item.videoElement) {
+        item.videoElement.srcObject = item.stream;
+      }
+
+      // Callback to replace sender track in all WebRTC peer connections
+      if (onNewTrackCallback) {
+        await onNewTrackCallback(newTrack, currentTrack);
+      }
+
+      return {
+        facingMode: targetFacing,
+        newTrack,
+        stream: item.stream
+      };
+    } catch (err) {
+      // Fallback if exact facingMode constraint is rejected by some Android webviews
+      console.warn(`[E-WARN CameraManager] Exact constraint failed, retrying with ideal: ${err.message}`);
+      const fallbackStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: targetFacing },
+        audio: false
+      });
+      const fallbackTrack = fallbackStream.getVideoTracks()[0];
+      if (currentTrack) {
+        currentTrack.stop();
+        item.stream.removeTrack(currentTrack);
+      }
+      item.stream.addTrack(fallbackTrack);
+      item.isMirrored = (targetFacing === 'user');
+      item.element.classList.toggle('mirrored', item.isMirrored);
+      if (item.videoElement) item.videoElement.srcObject = item.stream;
+      if (onNewTrackCallback) await onNewTrackCallback(fallbackTrack, currentTrack);
+      return { facingMode: targetFacing, newTrack: fallbackTrack, stream: item.stream };
+    }
+  }
+
+  /**
    * Add External USB Camera Feed (Default: Unmirrored for readable documents/text)
    */
   async addSecondaryCamera(deviceId, customLabel = null) {

@@ -754,35 +754,115 @@ body {
 }
 
 /* ==========================================================================
-   MOBILE RESPONSIVE
+   MOBILE RESPONSIVE — True Google Meet Mobile Web App Interface
    ========================================================================== */
 @media (max-width: 640px) {
   .topbar {
     padding: 0 12px;
-    height: 56px;
+    height: 52px;
+    background-color: var(--gm-bg);
   }
 
-  .brand-logo-img { height: 32px; }
+  .brand-logo-img { height: 28px; }
+  .brand-tagline { display: none !important; }
 
+  .room-badge-container {
+    padding: 4px 10px;
+    font-size: 0.75rem;
+  }
+
+  .room-id-label {
+    font-size: 0.75rem;
+    max-width: 90px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .btn-copy-room {
+    padding: 2px 6px;
+    font-size: 0.72rem;
+  }
+
+  /* Main Workspace Full Screen on Mobile */
+  .main-stage {
+    padding: 4px 8px;
+    flex: 1;
+  }
+
+  .video-canvas-container {
+    height: 100%;
+  }
+
+  .video-grid[data-mode="stage"] {
+    gap: 8px;
+  }
+
+  /* Featured Video on Mobile fills stage perfectly with rounded corners */
+  .video-grid[data-mode="stage"] .video-card.featured-stage {
+    max-height: calc(100vh - 185px);
+    border-radius: var(--radius-md);
+    border-width: 1px;
+  }
+
+  /* Floating Google Meet Pill Dock for Mobile */
   .bottom-dock {
-    height: 70px;
-    padding: 0 12px;
-    justify-content: space-around;
+    height: 68px;
+    padding: 0 10px;
+    background: rgba(32, 33, 36, 0.95);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--gm-border);
+    justify-content: space-evenly;
+    gap: 8px;
   }
 
-  /* Only hide pill controls inside the bottom dock on mobile, NOT the Chat button in the header! */
+  .dock-left, .dock-center, .dock-right {
+    gap: 8px;
+  }
+
   .bottom-dock .btn-pill-ctrl {
     display: none !important;
   }
 
+  /* 44px Google Circular Touch Targets */
+  .btn-round-ctrl {
+    width: 44px;
+    height: 44px;
+    font-size: 1.15rem;
+  }
+
+  .btn-leave-call {
+    height: 44px;
+    padding: 0 16px;
+    font-size: 0.82rem;
+    border-radius: var(--radius-pill);
+  }
+
+  /* Filmstrip Tray at bottom on mobile */
+  .filmstrip-row {
+    height: 95px;
+    gap: 8px;
+    padding: 2px 0;
+  }
+
+  .video-grid[data-mode="stage"] .video-card:not(.featured-stage) {
+    height: 85px;
+    width: 130px;
+    border-radius: var(--radius-sm);
+  }
+
   #btnToggleSidebar {
     display: flex !important;
+    height: 34px;
+    padding: 0 12px;
+    font-size: 0.78rem;
   }
 
   #btnMobileMore {
     display: flex !important;
   }
 
+  /* Full Screen Mobile Chat Drawer */
   .sidebar {
     position: fixed;
     inset: 0;
@@ -790,11 +870,6 @@ body {
     height: 100%;
     margin: 0;
     border-radius: 0;
-    z-index: 200;
-  }
-
-  .video-grid[data-mode="stage"] .video-card:not(.featured-stage) {
-    height: 90px;
-    width: 160px;
+    z-index: 300;
   }
 }
