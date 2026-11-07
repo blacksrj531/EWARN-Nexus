@@ -33,12 +33,28 @@ wss.on('connection', (ws) => {
           currentRoomId = data.roomId.toLowerCase().trim();
           currentUserId = data.userId;
           currentUserName = data.userName || 'Participant';
+          const userPasscodeHash = data.passcodeHash || null;
 
           if (!rooms.has(currentRoomId)) {
-            rooms.set(currentRoomId, new Map());
+            rooms.set(currentRoomId, {
+              participants: new Map(),
+              passcodeHash: userPasscodeHash
+            });
           }
 
-          const room = rooms.get(currentRoomId);
+          const roomObj = rooms.get(currentRoomId);
+
+          // Verify Room Passcode Gatekeeping (P1 Security)
+          if (roomObj.passcodeHash && roomObj.passcodeHash !== userPasscodeHash) {
+            ws.send(JSON.stringify({
+              type: 'AUTH_ERROR',
+              message: 'Invalid Room Passcode. Access Denied.'
+            }));
+            ws.close();
+            return;
+          }
+
+          const room = roomObj.participants;
 
           // Notify the new user of all existing peers in the room
           const existingParticipants = [];
@@ -70,7 +86,7 @@ wss.on('connection', (ws) => {
         case 'WEBRTC_SIGNAL':
           // Targeted point-to-point signal (Offer, Answer, ICE)
           if (currentRoomId && rooms.has(currentRoomId)) {
-            const room = rooms.get(currentRoomId);
+            const room = rooms.get(currentRoomId).participants;
             const target = room.get(data.targetId);
             if (target && target.ws.readyState === WebSocket.OPEN) {
               target.ws.send(JSON.stringify({
@@ -85,7 +101,7 @@ wss.on('connection', (ws) => {
 
         case 'CHAT_BROADCAST':
           if (currentRoomId && rooms.has(currentRoomId)) {
-            const room = rooms.get(currentRoomId);
+            const room = rooms.get(currentRoomId).participants;
             room.forEach((meta, peerId) => {
               if (peerId !== currentUserId && meta.ws.readyState === WebSocket.OPEN) {
                 meta.ws.send(JSON.stringify({
@@ -107,7 +123,7 @@ wss.on('connection', (ws) => {
 
   ws.on('close', () => {
     if (currentRoomId && rooms.has(currentRoomId)) {
-      const room = rooms.get(currentRoomId);
+      const room = rooms.get(currentRoomId).participants;
       room.delete(currentUserId);
       console.log(`[E-WARN Server] User ${currentUserId} left room ${currentRoomId}`);
 

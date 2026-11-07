@@ -5,10 +5,11 @@
  */
 
 export class SovereignWebRTCClient {
-  constructor(roomId, userId, userName, onRemoteStream, onPeerLeft, onChatMessage) {
+  constructor(roomId, userId, userName, passcodeHash, onRemoteStream, onPeerLeft, onChatMessage) {
     this.roomId = roomId;
     this.userId = userId;
     this.userName = userName;
+    this.passcodeHash = passcodeHash;
     this.onRemoteStream = onRemoteStream;
     this.onPeerLeft = onPeerLeft;
     this.onChatMessage = onChatMessage;
@@ -46,7 +47,8 @@ export class SovereignWebRTCClient {
         type: 'JOIN_LOBBY',
         roomId: this.roomId,
         userId: this.userId,
-        userName: this.userName
+        userName: this.userName,
+        passcodeHash: this.passcodeHash
       }));
     };
 

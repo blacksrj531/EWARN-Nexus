@@ -90,14 +90,20 @@ export class CameraManager {
           deviceId: { exact: deviceId },
           width: { ideal: 1280 },
           height: { ideal: 720 },
-          frameRate: { ideal: 24 } // Efficient bandwidth scaling
+          frameRate: { ideal: 24 }
         },
-        audio: false // No duplicate audio to prevent acoustic feedback
+        audio: false // STRICT P0: Never capture audio from secondary USB cameras to eliminate metallic echo feedback
       };
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       const videoTrack = stream.getVideoTracks()[0];
       const label = customLabel || videoTrack.label || 'Auxiliary USB Camera';
+
+      // P1: Handle physical cable disconnect / snag cleanly
+      videoTrack.onended = () => {
+        console.warn(`[E-WARN CameraManager] Hardware disconnected for feed: ${label}`);
+        this.stopStream(stream.id);
+      };
 
       this._mountStreamTile(stream, {
         id: stream.id,
@@ -105,7 +111,7 @@ export class CameraManager {
         label,
         type: 'usb',
         isPrimary: false,
-        isMirrored: false // Unmirrored for reading text & schematics
+        isMirrored: false
       });
 
       return stream;

@@ -43,9 +43,19 @@ class EwarnNexusApp {
       console.warn('Lobby preview error:', e);
     }
 
-    btnEnter.onclick = () => {
+    btnEnter.onclick = async () => {
       const userName = inputUserName.value.trim() || 'Participant';
       const roomId = inputRoomId.value.trim() || 'nexus-hq';
+      const passcode = document.getElementById('lobbyRoomPasscode').value.trim();
+
+      // Client-side SHA-256 room passcode hashing
+      let passcodeHash = null;
+      if (passcode) {
+        const msgBuffer = new TextEncoder().encode(passcode);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        passcodeHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      }
 
       window.location.hash = `room-${roomId}`;
       document.getElementById('roomIdDisplay').innerText = `Room: #${roomId}`;
@@ -54,11 +64,11 @@ class EwarnNexusApp {
       lobbyScreen.style.display = 'none';
       inCallApp.style.display = 'flex';
 
-      this._startMeeting(roomId, userName);
+      this._startMeeting(roomId, userName, passcodeHash);
     };
   }
 
-  _startMeeting(roomId, userName) {
+  _startMeeting(roomId, userName, passcodeHash = null) {
     // 1. Multi-Camera Hardware Controller & Director Focus Stage
     this.cameraManager = new CameraManager(
       this.videoGrid,
@@ -107,6 +117,7 @@ class EwarnNexusApp {
       roomId,
       this.userId,
       userName,
+      passcodeHash,
       (targetId, targetName, remoteStream) => {
         this._handleRemoteStream(targetId, targetName, remoteStream);
       },
@@ -186,13 +197,26 @@ class EwarnNexusApp {
     const container = document.getElementById('chatMessages');
     const el = document.createElement('div');
     el.className = 'msg-item';
-    el.innerHTML = `
-      <div class="msg-meta">
-        <span class="msg-sender">${msg.senderName}</span>
-        <span>Just now</span>
-      </div>
-      <div class="msg-body">${msg.text}</div>
-    `;
+
+    const meta = document.createElement('div');
+    meta.className = 'msg-meta';
+
+    const sender = document.createElement('span');
+    sender.className = 'msg-sender';
+    sender.textContent = msg.senderName; // Safe textContent (prevents XSS)
+
+    const time = document.createElement('span');
+    time.textContent = 'Just now';
+
+    meta.appendChild(sender);
+    meta.appendChild(time);
+
+    const body = document.createElement('div');
+    body.className = 'msg-body';
+    body.textContent = msg.text; // Safe textContent (prevents XSS)
+
+    el.appendChild(meta);
+    el.appendChild(body);
     container.appendChild(el);
     container.scrollTop = container.scrollHeight;
   }
