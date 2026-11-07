@@ -256,7 +256,7 @@ class EwarnNexusApp {
         if (audio) {
           audio.enabled = !audio.enabled;
           btnMic.classList.toggle('danger', !audio.enabled);
-          btnMic.querySelector('.btn-label').innerText = audio.enabled ? 'Mute' : 'Unmute';
+          btnMic.innerText = audio.enabled ? '🎤' : '🔇';
           this._showToast(audio.enabled ? 'Microphone Active' : 'Microphone Muted');
         }
       }
