@@ -292,6 +292,14 @@ class EwarnNexusApp {
     el.appendChild(body);
     container.appendChild(el);
     container.scrollTop = container.scrollHeight;
+
+    // Show Notification Badge if Chat Sidebar is currently collapsed/closed
+    const sidebar = document.getElementById('sidebar');
+    const badge = document.getElementById('chatNotificationBadge');
+    if (sidebar && sidebar.classList.contains('collapsed') && msg.senderName !== 'You') {
+      if (badge) badge.style.display = 'block';
+      this._showToast(`💬 New message from ${msg.senderName}`);
+    }
   }
 
   _bindControls() {
@@ -560,7 +568,17 @@ class EwarnNexusApp {
 
     // Sidebar & Chat
     const sidebar = document.getElementById('sidebar');
-    document.getElementById('btnToggleSidebar').onclick = () => sidebar.classList.toggle('collapsed');
+    const badge = document.getElementById('chatNotificationBadge');
+
+    const toggleSidebar = () => {
+      sidebar.classList.toggle('collapsed');
+      // If opening chat drawer, dismiss unread notification badge
+      if (!sidebar.classList.contains('collapsed') && badge) {
+        badge.style.display = 'none';
+      }
+    };
+
+    document.getElementById('btnToggleSidebar').onclick = toggleSidebar;
     document.getElementById('btnCloseSidebar').onclick = () => sidebar.classList.add('collapsed');
 
     // Send Chat

@@ -506,6 +506,26 @@ body {
   transform: translateY(-2px);
 }
 
+/* Red Pulsing Notification Badge for Inbound Messages */
+.chat-badge-dot {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--gm-red);
+  box-shadow: 0 0 6px var(--gm-red);
+  display: none;
+  animation: pulse-badge 1.6s infinite;
+}
+
+@keyframes pulse-badge {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(234, 67, 53, 0.7); }
+  70% { transform: scale(1.15); box-shadow: 0 0 0 6px rgba(234, 67, 53, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(234, 67, 53, 0); }
+}
+
 /* ==========================================================================
    SIDEBAR (Google Meet Right Drawer: Chat & Participants)
    ========================================================================== */
