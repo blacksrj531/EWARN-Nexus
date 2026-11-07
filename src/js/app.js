@@ -191,7 +191,7 @@ class EwarnNexusApp {
         <span>${labelText}</span>
       `;
 
-      // Action Controls (Pin, Zoom, Flip)
+      // Action Controls (Pin to Stage)
       const actions = document.createElement('div');
       actions.className = 'video-card-actions always-visible';
 
@@ -205,17 +205,6 @@ class EwarnNexusApp {
         this.cameraManager.setFeaturedStream(card.id);
       };
       actions.appendChild(pinBtn);
-
-      // Flip toggle
-      const flipBtn = document.createElement('button');
-      flipBtn.className = 'btn-card-action';
-      flipBtn.title = 'Flip orientation';
-      flipBtn.innerHTML = '⇄';
-      flipBtn.onclick = (e) => {
-        e.stopPropagation();
-        card.classList.toggle('mirrored');
-      };
-      actions.appendChild(flipBtn);
 
       // Interactive Zoom Wrapper for Pinch-to-Zoom & Pan
       const zoomWrapper = document.createElement('div');

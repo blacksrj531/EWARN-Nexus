@@ -220,7 +220,7 @@ export class CameraManager {
       <span>${meta.label}</span>
     `;
 
-    // Action Controls (Pin to Stage, Flip Mirror, Stop feed)
+    // Action Controls (Pin to Stage, Stop feed)
     const actions = document.createElement('div');
     actions.className = 'video-card-actions';
 
@@ -234,17 +234,6 @@ export class CameraManager {
       this.setFeaturedStream(meta.id);
     };
     actions.appendChild(pinBtn);
-
-    // Flip Mirror Toggle Button
-    const flipBtn = document.createElement('button');
-    flipBtn.className = 'btn-card-action';
-    flipBtn.title = 'Flip / Mirror orientation';
-    flipBtn.innerHTML = '⇄';
-    flipBtn.onclick = (e) => {
-      e.stopPropagation();
-      this.toggleMirror(meta.id);
-    };
-    actions.appendChild(flipBtn);
 
     // Stop Feed Button
     if (!meta.isPrimary) {
