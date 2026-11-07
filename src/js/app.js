@@ -194,9 +194,22 @@ class EwarnNexusApp {
         <span>${labelText}</span>
       `;
 
-      // Flip toggle
+      // Action Controls (Pin, Zoom, Flip)
       const actions = document.createElement('div');
-      actions.className = 'video-card-actions';
+      actions.className = 'video-card-actions always-visible';
+
+      // 1-Click Pin to Stage Button
+      const pinBtn = document.createElement('button');
+      pinBtn.className = 'btn-card-action btn-pin-action';
+      pinBtn.title = 'Pin presentation to main screen';
+      pinBtn.innerHTML = '📍';
+      pinBtn.onclick = (e) => {
+        e.stopPropagation();
+        this.cameraManager.setFeaturedStream(card.id);
+      };
+      actions.appendChild(pinBtn);
+
+      // Flip toggle
       const flipBtn = document.createElement('button');
       flipBtn.className = 'btn-card-action';
       flipBtn.title = 'Flip orientation';
@@ -207,11 +220,24 @@ class EwarnNexusApp {
       };
       actions.appendChild(flipBtn);
 
+      // Interactive Zoom Wrapper for Pinch-to-Zoom & Pan
+      const zoomWrapper = document.createElement('div');
+      zoomWrapper.className = 'video-zoom-container';
+      zoomWrapper.appendChild(video);
+
+      // Reset Zoom Pill
+      const resetZoomPill = document.createElement('button');
+      resetZoomPill.className = 'zoom-reset-pill';
+      resetZoomPill.innerHTML = '🔍 100% Reset';
+      zoomWrapper.appendChild(resetZoomPill);
+
+      this._enablePinchAndPanZoom(zoomWrapper, video, resetZoomPill);
+
       card.onclick = () => {
         this.cameraManager.setFeaturedStream(card.id);
       };
 
-      card.appendChild(video);
+      card.appendChild(zoomWrapper);
       card.appendChild(badge);
       card.appendChild(actions);
       this.videoGrid.appendChild(card);
@@ -499,6 +525,113 @@ class EwarnNexusApp {
         }
       };
     }
+  }
+
+  /**
+   * Google Meet Style Fluid Multi-Touch Pinch-to-Zoom & Pan Engine
+   * Works seamlessly on mobile touchscreens and desktop trackpads
+   */
+  _enablePinchAndPanZoom(container, videoEl, resetBtn) {
+    let scale = 1;
+    let translateX = 0;
+    let translateY = 0;
+    let startDistance = 0;
+    let initialScale = 1;
+    let startX = 0;
+    let startY = 0;
+    let isPanning = false;
+
+    const updateTransform = () => {
+      // Clamp boundaries
+      scale = Math.min(Math.max(1, scale), 4.5); // 1x to 4.5x zoom
+      if (scale === 1) {
+        translateX = 0;
+        translateY = 0;
+        resetBtn.style.display = 'none';
+      } else {
+        resetBtn.style.display = 'flex';
+        resetBtn.innerText = `🔍 ${Math.round(scale * 100)}% Reset`;
+      }
+      videoEl.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    };
+
+    resetBtn.onclick = (e) => {
+      e.stopPropagation();
+      scale = 1;
+      translateX = 0;
+      translateY = 0;
+      updateTransform();
+    };
+
+    // Mobile Multi-Touch Pinch Gestures
+    container.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 2) {
+        // Pinch Zoom start
+        startDistance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        initialScale = scale;
+      } else if (e.touches.length === 1 && scale > 1) {
+        // Pan while zoomed
+        isPanning = true;
+        startX = e.touches[0].clientX - translateX;
+        startY = e.touches[0].clientY - translateY;
+      }
+    }, { passive: true });
+
+    container.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const currentDistance = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        if (startDistance > 0) {
+          const factor = currentDistance / startDistance;
+          scale = initialScale * factor;
+          updateTransform();
+        }
+      } else if (e.touches.length === 1 && isPanning && scale > 1) {
+        e.preventDefault();
+        translateX = e.touches[0].clientX - startX;
+        translateY = e.touches[0].clientY - startY;
+        updateTransform();
+      }
+    }, { passive: false });
+
+    container.addEventListener('touchend', (e) => {
+      if (e.touches.length < 2) {
+        startDistance = 0;
+      }
+      if (e.touches.length === 0) {
+        isPanning = false;
+      }
+    });
+
+    // Double Tap / Double Click to Fast Zoom 2.5x / Reset
+    let lastTap = 0;
+    container.addEventListener('click', (e) => {
+      const now = Date.now();
+      if (now - lastTap < 300) {
+        e.stopPropagation();
+        scale = scale > 1.2 ? 1 : 2.5;
+        translateX = 0;
+        translateY = 0;
+        updateTransform();
+      }
+      lastTap = now;
+    });
+
+    // Desktop Mouse Wheel / Trackpad Pinch Zoom
+    container.addEventListener('wheel', (e) => {
+      if (e.ctrlKey || e.metaKey || scale > 1) {
+        e.preventDefault();
+        const delta = e.deltaY < 0 ? 0.15 : -0.15;
+        scale += delta;
+        updateTransform();
+      }
+    }, { passive: false });
   }
 
   _showToast(msg) {

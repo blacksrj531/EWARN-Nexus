@@ -144,9 +144,20 @@ export class CameraManager {
       <span>${meta.label}</span>
     `;
 
-    // Action Controls (Flip Mirror, Stop feed)
+    // Action Controls (Pin to Stage, Flip Mirror, Stop feed)
     const actions = document.createElement('div');
     actions.className = 'video-card-actions';
+
+    // 1-Click Pin to Main Stage Button (Google Meet standard)
+    const pinBtn = document.createElement('button');
+    pinBtn.className = 'btn-card-action btn-pin-action';
+    pinBtn.title = 'Pin to main screen';
+    pinBtn.innerHTML = '📍';
+    pinBtn.onclick = (e) => {
+      e.stopPropagation();
+      this.setFeaturedStream(meta.id);
+    };
+    actions.appendChild(pinBtn);
 
     // Flip Mirror Toggle Button
     const flipBtn = document.createElement('button');
@@ -216,7 +227,6 @@ export class CameraManager {
    * Set a specific stream to be the large Featured Stage
    */
   setFeaturedStream(streamId) {
-    if (!this.activeStreams.has(streamId)) return;
     this.featuredStreamId = streamId;
     this._applyLayoutMode();
   }
@@ -248,6 +258,14 @@ export class CameraManager {
       allCards.forEach((card) => {
         const isFeatured = (card.dataset.streamId === this.featuredStreamId || card.id === this.featuredStreamId);
         card.classList.toggle('featured-stage', isFeatured);
+
+        // Update Pin Button State
+        const pinBtn = card.querySelector('.btn-pin-action');
+        if (pinBtn) {
+          pinBtn.classList.toggle('active-pin', isFeatured);
+          pinBtn.title = isFeatured ? 'Unpin feed' : 'Pin to main screen';
+          pinBtn.innerHTML = isFeatured ? '📌' : '📍';
+        }
 
         if (isFeatured) {
           // Mount large on stage
