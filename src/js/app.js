@@ -153,27 +153,45 @@ class EwarnNexusApp {
     this._bindControls();
   }
 
-  _handleRemoteStream(targetId, targetName, remoteStream) {
+  _handleRemoteStream(targetId, targetName, remoteStream, meta = {}) {
     // PREVENT SELF-LOOP: Never create a remote card for yourself!
     if (targetId === this.userId) return;
 
-    let card = document.getElementById(`feed-remote-${targetId}`);
+    // Use specific card ID per stream so screenshares and extra cameras get their own card
+    const streamIdentifier = (meta && meta.streamId) ? meta.streamId : remoteStream.id;
+    const cardId = `feed-remote-${targetId}-${streamIdentifier}`;
+
+    let card = document.getElementById(cardId);
     if (!card) {
+      // Check if this incoming track is video or audio-only
+      const videoTracks = remoteStream.getVideoTracks();
+      const isVideo = videoTracks.length > 0;
+      
       card = document.createElement('div');
       card.className = 'video-card';
-      card.id = `feed-remote-${targetId}`;
-      card.dataset.streamId = card.id;
+      card.id = cardId;
+      card.dataset.streamId = cardId;
 
       const video = document.createElement('video');
       video.autoplay = true;
       video.playsInline = true;
       video.srcObject = remoteStream;
+      // Do not mute remote participants so you can hear them!
+      video.muted = false;
+
+      // Detect if this is a screen share or camera stream
+      const isScreen = (meta && meta.track && meta.track.label && meta.track.label.toLowerCase().includes('screen')) ||
+                       (meta && meta.trackKind === 'video' && targetName.toLowerCase().includes('screen'));
+
+      const tagClass = isScreen ? 'tag-screen' : 'tag-webcam';
+      const tagText = isScreen ? 'SCREEN' : 'REMOTE';
+      const labelText = isScreen ? `${targetName}'s Screen` : targetName;
 
       const badge = document.createElement('div');
       badge.className = 'video-badge';
       badge.innerHTML = `
-        <span class="tag-type tag-webcam">REMOTE</span>
-        <span>${targetName}</span>
+        <span class="tag-type ${tagClass}">${tagText}</span>
+        <span>${labelText}</span>
       `;
 
       // Flip toggle
@@ -198,19 +216,31 @@ class EwarnNexusApp {
       card.appendChild(actions);
       this.videoGrid.appendChild(card);
 
+      // If remote peer shared their screen, automatically feature it on mobile & desktop!
+      if (isScreen) {
+        this.cameraManager.setFeaturedStream(card.id);
+      }
+
       // Re-apply director layout
       this.cameraManager._applyLayoutMode();
-      this._showToast(`${targetName} joined the call!`);
+      this._showToast(isScreen ? `${targetName} started presenting screen` : `${targetName} joined the call!`);
+    } else {
+      // Card already exists, ensure srcObject has the latest track
+      const existingVideo = card.querySelector('video');
+      if (existingVideo && existingVideo.srcObject !== remoteStream) {
+        existingVideo.srcObject = remoteStream;
+        existingVideo.play().catch(e => console.warn('Autoplay prevented:', e));
+      }
     }
   }
 
   _handlePeerLeft(userId) {
-    const card = document.getElementById(`feed-remote-${userId}`);
-    if (card && card.parentNode) {
-      card.parentNode.removeChild(card);
-      this.cameraManager._applyLayoutMode();
-      this._showToast('A participant left the call.');
-    }
+    const cards = document.querySelectorAll(`[id^="feed-remote-${userId}"]`);
+    cards.forEach(card => {
+      if (card.parentNode) card.parentNode.removeChild(card);
+    });
+    this.cameraManager._applyLayoutMode();
+    this._showToast('A participant left the call.');
   }
 
   _handleIncomingChat(msg) {
@@ -302,11 +332,18 @@ class EwarnNexusApp {
       }
     };
 
-    document.getElementById('btnShareScreen').onclick = handleScreenShare;
-    document.getElementById('mBtnShareScreen').onclick = () => {
-      document.getElementById('modalMobileActions').classList.remove('open');
-      handleScreenShare();
-    };
+    const btnShareScreen = document.getElementById('btnShareScreen');
+    if (btnShareScreen) {
+      btnShareScreen.onclick = handleScreenShare;
+    }
+    
+    const mBtnShareScreen = document.getElementById('mBtnShareScreen');
+    if (mBtnShareScreen) {
+      mBtnShareScreen.onclick = () => {
+        document.getElementById('modalMobileActions')?.classList.remove('open');
+        handleScreenShare();
+      };
+    }
 
     // Layout Toggle (Director Stage vs Equal Grid)
     const handleLayoutToggle = (btn) => {

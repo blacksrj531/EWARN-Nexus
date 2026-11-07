@@ -182,10 +182,17 @@ export class SovereignWebRTCClient {
 
     // Inbound remote video & audio stream
     pc.ontrack = (event) => {
-      console.log(`[E-WARN Client] Inbound video track from ${targetName}`);
-      const remoteStream = event.streams[0] || new MediaStream([event.track]);
+      console.log(`[E-WARN Client] Inbound video track from ${targetName}`, event);
+      const incomingStream = (event.streams && event.streams[0]) ? event.streams[0] : new MediaStream([event.track]);
+      const trackKind = event.track.kind;
+      const streamId = incomingStream.id || `${targetId}-${event.track.id}`;
+
       if (this.onRemoteStream) {
-        this.onRemoteStream(targetId, targetName, remoteStream);
+        this.onRemoteStream(targetId, targetName, incomingStream, {
+          streamId,
+          trackKind,
+          track: event.track
+        });
       }
     };
 
@@ -222,13 +229,34 @@ export class SovereignWebRTCClient {
     }
   }
 
-  registerLocalStream(stream) {
-    this.localStreams.push(stream);
-    // Push new tracks to all active connections
-    for (const [_, peerObj] of this.peers) {
-      stream.getTracks().forEach((t) => {
-        peerObj.pc.addTrack(t, stream);
-      });
+  async registerLocalStream(stream) {
+    if (!stream) return;
+    if (!this.localStreams.includes(stream)) {
+      this.localStreams.push(stream);
+    }
+
+    // Push new tracks to all active peer connections AND trigger renegotiation!
+    for (const [targetId, peerObj] of this.peers) {
+      try {
+        const senders = peerObj.pc.getSenders();
+        stream.getTracks().forEach((track) => {
+          const alreadySending = senders.some(s => s.track && s.track.id === track.id);
+          if (!alreadySending) {
+            peerObj.pc.addTrack(track, stream);
+          }
+        });
+
+        // Sovereign Multi-Track Renegotiation Offer:
+        console.log(`[E-WARN Client] Renegotiating session with peer: ${targetId} for newly added stream/screen`);
+        const offer = await peerObj.pc.createOffer();
+        await peerObj.pc.setLocalDescription(offer);
+        this._sendSignal(targetId, {
+          type: 'OFFER',
+          sdp: peerObj.pc.localDescription
+        });
+      } catch (err) {
+        console.error(`[E-WARN Client] Renegotiation error with ${targetId}:`, err);
+      }
     }
   }
 

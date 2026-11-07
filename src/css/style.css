@@ -176,21 +176,30 @@ body {
   flex-direction: column;
   height: 100%;
   width: 100%;
-  gap: 16px;
-  justify-content: space-between;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
 }
 
 .video-grid[data-mode="stage"] .video-card.featured-stage {
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
   width: 100%;
   max-width: 1200px;
+  max-height: calc(100vh - 250px);
   margin: 0 auto;
   aspect-ratio: 16 / 9;
   border-radius: var(--radius-lg);
   border: 2px solid rgba(138, 180, 248, 0.4);
   box-shadow: var(--shadow-3);
   transition: all var(--transition-smooth);
+}
+
+.video-grid[data-mode="stage"] .video-card.featured-stage video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: #121314;
 }
 
 /* Filmstrip Bottom Dock */
@@ -702,8 +711,13 @@ body {
     justify-content: space-around;
   }
 
-  .btn-pill-ctrl {
+  /* Only hide pill controls inside the bottom dock on mobile, NOT the Chat button in the header! */
+  .bottom-dock .btn-pill-ctrl {
     display: none !important;
+  }
+
+  #btnToggleSidebar {
+    display: flex !important;
   }
 
   #btnMobileMore {
