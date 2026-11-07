@@ -24,13 +24,30 @@ class EwarnNexusApp {
     const inputRoomId = document.getElementById('lobbyRoomId');
     const btnEnter = document.getElementById('btnEnterMeeting');
 
-    // Pre-populate room from hash or generate default
+    // Pre-populate room from hash or generate random unique Google Meet style code
+    const generateUniqueRoomId = () => {
+      const part1 = Math.random().toString(36).substring(2, 5);
+      const part2 = Math.random().toString(36).substring(2, 6);
+      const part3 = Math.random().toString(36).substring(2, 5);
+      return `nex-${part1}-${part2}`;
+    };
+
     let hash = window.location.hash.replace('#room-', '');
     if (!hash || hash.length < 3) {
-      hash = 'nexus-hq';
+      hash = generateUniqueRoomId();
     }
     inputRoomId.value = hash;
     inputUserName.value = 'Operator-' + Math.floor(100 + Math.random() * 900);
+
+    // 1-Click "🔄 Generate New" room code button in Lobby
+    const btnGenNew = document.getElementById('btnGenerateNewRoomId');
+    if (btnGenNew) {
+      btnGenNew.onclick = () => {
+        const newId = generateUniqueRoomId();
+        inputRoomId.value = newId;
+        this._showToast(`Generated New Room: ${newId}`);
+      };
+    }
 
     // Start Lobby Camera Preview
     try {

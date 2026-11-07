@@ -104,8 +104,13 @@
         </div>
 
         <div>
-          <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; display: block;">Meeting Room ID</label>
-          <input type="text" id="lobbyRoomId" class="form-input" placeholder="e.g. nexus-hq">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+            <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Meeting Room ID</label>
+            <button type="button" id="btnGenerateNewRoomId" style="background: none; border: none; color: var(--accent-blue); font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+              🔄 Generate New
+            </button>
+          </div>
+          <input type="text" id="lobbyRoomId" class="form-input" placeholder="e.g. nex-abc-xyz">
         </div>
 
         <div>
