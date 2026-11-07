@@ -221,13 +221,21 @@ class EwarnNexusApp {
     // Entire Screen Share
     const handleScreenShare = async () => {
       try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+          alert('Screen sharing is not supported by your mobile browser. Please use Chrome/Edge on Desktop.');
+          return;
+        }
+
         const screenStream = await navigator.mediaDevices.getDisplayMedia({
           video: { cursor: 'always' },
-          audio: true
+          audio: false // Safer across platforms that don't allow system audio loopback
         });
 
+        const screenTrack = screenStream.getVideoTracks()[0];
+        const screenId = 'screen-' + Date.now();
+
         this.cameraManager._mountStreamTile(screenStream, {
-          id: 'screen-' + Date.now(),
+          id: screenId,
           deviceId: 'screen',
           label: 'Entire Screen',
           type: 'screen',
@@ -235,9 +243,18 @@ class EwarnNexusApp {
           isMirrored: false
         });
 
+        // Set screen share as the main featured stage immediately!
+        this.cameraManager.setFeaturedStream(screenId);
+
+        // Broadcast to peers
         this.client.registerLocalStream(screenStream);
+
+        // Listen for native stop button
+        screenTrack.onended = () => {
+          this.cameraManager.stopStream(screenId);
+        };
       } catch (e) {
-        console.warn('Screen share canceled', e);
+        console.warn('Screen share canceled or not allowed', e);
       }
     };
 
@@ -259,7 +276,8 @@ class EwarnNexusApp {
 
     // Multi-Camera Modals
     const modalCamera = document.getElementById('modalAddCamera');
-    document.getElementById('btnAddCamera').onclick = async () => {
+    // Open Camera Modal logic reusable for desktop and mobile
+    const openAddCameraModal = async () => {
       const select = document.getElementById('cameraDeviceSelect');
       select.innerHTML = '<option value="">Scanning hardware...</option>';
       modalCamera.classList.add('open');
@@ -281,6 +299,48 @@ class EwarnNexusApp {
         select.innerHTML = '<option value="">Device scan failed</option>';
       }
     };
+
+    document.getElementById('btnAddCamera').onclick = openAddCameraModal;
+
+    // Mobile More Actions Bottom Sheet Triggers
+    const modalMobile = document.getElementById('modalMobileActions');
+    const btnMobileMore = document.getElementById('btnMobileMore');
+    if (btnMobileMore) {
+      btnMobileMore.onclick = () => {
+        modalMobile.classList.add('open');
+      };
+    }
+    const btnCloseMobile = document.getElementById('btnCloseMobileActions');
+    if (btnCloseMobile) {
+      btnCloseMobile.onclick = () => {
+        modalMobile.classList.remove('open');
+      };
+    }
+
+    // Connect Mobile Sheet Buttons to Real Actions
+    const mBtnAddCam = document.getElementById('mBtnAddCamera');
+    if (mBtnAddCam) {
+      mBtnAddCam.onclick = () => {
+        modalMobile.classList.remove('open');
+        openAddCameraModal();
+      };
+    }
+
+    const mBtnAddIP = document.getElementById('mBtnAddIPCamera');
+    if (mBtnAddIP) {
+      mBtnAddIP.onclick = () => {
+        modalMobile.classList.remove('open');
+        modalIP.classList.add('open');
+      };
+    }
+
+    const mBtnLayout = document.getElementById('mBtnLayoutToggle');
+    if (mBtnLayout) {
+      mBtnLayout.onclick = () => {
+        modalMobile.classList.remove('open');
+        handleLayoutToggle(btnLayout);
+      };
+    }
 
     document.getElementById('btnConfirmAddCamera').onclick = async () => {
       const select = document.getElementById('cameraDeviceSelect');
