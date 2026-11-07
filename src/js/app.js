@@ -477,13 +477,28 @@ class EwarnNexusApp {
       if (e.key === 'Enter') sendChat();
     };
 
-    // Leave
-    document.getElementById('btnLeaveMeeting').onclick = () => {
-      if (confirm('Leave E-WARN NEXUS call?')) {
-        this.client.disconnect();
-        window.location.reload();
-      }
-    };
+    // Leave Meeting: Stop all camera & mic hardware before teardown
+    const btnLeave = document.getElementById('btnLeaveMeeting');
+    if (btnLeave) {
+      btnLeave.onclick = () => {
+        if (confirm('Leave E-WARN NEXUS call?')) {
+          // Release camera & mic hardware completely
+          if (this.localStream) {
+            this.localStream.getTracks().forEach(t => t.stop());
+          }
+          if (this.cameraManager) {
+            for (const [_, item] of this.cameraManager.activeStreams) {
+              if (item.stream) item.stream.getTracks().forEach(t => t.stop());
+            }
+          }
+          if (this.client) {
+            this.client.disconnect();
+          }
+          window.location.hash = '';
+          window.location.reload();
+        }
+      };
+    }
   }
 
   _showToast(msg) {
