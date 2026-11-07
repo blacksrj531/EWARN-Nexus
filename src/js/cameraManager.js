@@ -279,16 +279,6 @@ export class CameraManager {
   }
 
   /**
-   * Toggle Mirroring on an individual video feed
-   */
-  toggleMirror(streamId) {
-    const item = this.activeStreams.get(streamId);
-    if (!item) return;
-    item.isMirrored = !item.isMirrored;
-    item.element.classList.toggle('mirrored', item.isMirrored);
-  }
-
-  /**
    * Set a specific stream to be the large Featured Stage
    */
   setFeaturedStream(streamId) {

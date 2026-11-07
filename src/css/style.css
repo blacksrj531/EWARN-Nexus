@@ -444,6 +444,17 @@ body {
   transition: all var(--transition-fast);
 }
 
+/* Front/Rear Switch button is hidden on desktop by default; only shown on mobile/touch screens */
+#btnSwitchCamera {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  #btnSwitchCamera {
+    display: flex;
+  }
+}
+
 .btn-round-ctrl:hover {
   background-color: var(--gm-surface-hover);
   border-color: var(--gm-border-light);
