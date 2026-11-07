@@ -231,15 +231,47 @@ export class CameraManager {
   }
 
   _applyLayoutMode() {
-    const totalFeeds = this.videoGrid.children.length;
+    const totalFeeds = this.videoGrid.querySelectorAll('.video-card').length;
     this.videoGrid.setAttribute('data-mode', this.layoutMode);
     this.videoGrid.setAttribute('data-count', Math.min(totalFeeds, 8).toString());
 
-    // Highlight featured feed, dock the others (applies to both local and remote cards)
-    const cards = Array.from(this.videoGrid.querySelectorAll('.video-card'));
-    for (const card of cards) {
-      const isFeatured = (this.layoutMode === 'stage' && (card.dataset.streamId === this.featuredStreamId || card.id === this.featuredStreamId));
-      card.classList.toggle('featured-stage', isFeatured);
+    if (this.layoutMode === 'stage') {
+      // Find or create the dedicated horizontal filmstrip tray
+      let tray = this.videoGrid.querySelector('.filmstrip-row');
+      if (!tray) {
+        tray = document.createElement('div');
+        tray.className = 'filmstrip-row';
+        this.videoGrid.appendChild(tray);
+      }
+
+      const allCards = Array.from(this.videoGrid.querySelectorAll('.video-card'));
+      allCards.forEach((card) => {
+        const isFeatured = (card.dataset.streamId === this.featuredStreamId || card.id === this.featuredStreamId);
+        card.classList.toggle('featured-stage', isFeatured);
+
+        if (isFeatured) {
+          // Mount large on stage
+          if (card.parentNode !== this.videoGrid) {
+            this.videoGrid.insertBefore(card, tray);
+          }
+        } else {
+          // Mount into horizontal filmstrip tray
+          if (card.parentNode !== tray) {
+            tray.appendChild(card);
+          }
+        }
+      });
+    } else {
+      // Equal Grid Mode: Move all cards back to the main grid
+      const tray = this.videoGrid.querySelector('.filmstrip-row');
+      const allCards = Array.from(this.videoGrid.querySelectorAll('.video-card'));
+      allCards.forEach(c => {
+        c.classList.remove('featured-stage');
+        this.videoGrid.appendChild(c);
+      });
+      if (tray && tray.parentNode) {
+        tray.parentNode.removeChild(tray);
+      }
     }
   }
 

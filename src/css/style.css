@@ -165,8 +165,18 @@ body {
 }
 
 /* 
- * DIRECTOR FOCUS STAGE & DOCK LAYOUT (Default Mode)
+ * DIRECTOR FOCUS STAGE & HORIZONTAL FILMSTRIP DOCK (Apple & Google Meet Standard)
  */
+.video-canvas-container {
+  flex: 1;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+}
+
 .video-grid[data-mode="stage"] {
   display: flex;
   flex-direction: column;
@@ -175,46 +185,79 @@ body {
   gap: 12px;
 }
 
-/* The Large Featured Main Stage */
+/* 1. Large Main Featured Stage (Self or Speaker) with Clean Aspect Ratio Bounds */
 .video-grid[data-mode="stage"] .video-card.featured-stage {
   flex: 1;
-  max-height: calc(100% - 140px);
+  min-height: 0; /* Critical for flexbox height constraint */
+  max-height: calc(100% - 150px);
   width: 100%;
-  aspect-ratio: auto;
+  max-width: 1280px;
+  margin: 0 auto;
+  aspect-ratio: 16 / 9;
   border: 2px solid var(--accent-blue);
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 0 25px rgba(59, 130, 246, 0.25);
   order: 1;
 }
 
-/* The Live Mini-Dock Filmstrip */
+/* 2. Horizontal Filmstrip Dock for Participants */
+.video-grid[data-mode="stage"] {
+  /* Dynamic layout: Stage on top, horizontal row at bottom */
+  display: grid;
+  grid-template-rows: 1fr 135px;
+  grid-template-columns: 100%;
+  align-items: center;
+}
+
+/* When only 1 participant is in room, fill the height cleanly */
+.video-grid[data-mode="stage"][data-count="1"] {
+  grid-template-rows: 1fr;
+}
+
+.video-grid[data-mode="stage"][data-count="1"] .video-card.featured-stage {
+  max-height: 100%;
+}
+
+/* Docked Cards: HORIZONTALLY ORGANIZED with smooth scrolling */
 .video-grid[data-mode="stage"] .video-card:not(.featured-stage) {
-  height: 120px;
-  width: 213px; /* 16:9 ratio of 120px */
+  grid-row: 2;
+  height: 125px;
+  width: 222px; /* True 16:9 ratio of 125px */
   flex-shrink: 0;
   cursor: pointer;
-  order: 2;
-  transition: transform var(--transition-fast), border-color var(--transition-fast);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid var(--border-medium);
 }
 
 .video-grid[data-mode="stage"] .video-card:not(.featured-stage):hover {
-  transform: translateY(-4px);
+  transform: translateY(-4px) scale(1.02);
   border-color: var(--accent-emerald);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
 }
 
-/* Container for all docked cards in stage mode */
+/* The Horizontal Scroll Tray */
 .video-grid[data-mode="stage"] {
-  display: grid;
-  grid-template-rows: 1fr auto;
-  grid-template-columns: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.stage-filmstrip-dock {
-  grid-row: 2;
+.video-grid[data-mode="stage"] .video-card.featured-stage {
+  flex: 1;
+  width: 100%;
+}
+
+/* Bottom dock container: forces all non-featured cards into a neat horizontal row */
+.filmstrip-row {
   display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  padding: 6px 2px;
+  flex-direction: row;
   align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  height: 135px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px;
 }
 
 /* 
