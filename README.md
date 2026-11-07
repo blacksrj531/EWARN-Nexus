@@ -160,7 +160,8 @@ Visit **`http://localhost:3000`** in your browser.
 ---
 
 ## 📜 License & Attribution
-
-- **Project Lead & Founder**: Soumya Ranjan Jena ([@blacksrj531](https://github.com/blacksrj531))
+- **Guided By & Idea to make**: Prof. Santos Kumar Das
+- **Project Lead & Maker**: Soumya Ranjan Jena ([@blacksrj531](https://github.com/blacksrj531))
+- **Features Inject Idea**: Mr. Abhilash Parida (Multi-Camera Usage Fascility)
 - **Organization**: E-WARN (*Towards Smart Future!*)
 - **License**: Proprietary / Sovereign — All Rights Reserved.
