@@ -3,32 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>E-WARN NEXUS — Sovereign Multi-Camera Video Collaboration</title>
+  <title>E-WARN NEXUS — Sovereign Enterprise Video Collaboration</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
   <style>
-    /* LOBBY / PRE-CALL STYLING (Google & Microsoft Enterprise Standards) */
+    /* Google Meet Style Pre-Call Lobby */
     .lobby-screen {
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
+      background: radial-gradient(circle at center, #2d2e30 0%, #202124 100%);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 1000;
-      padding: 20px;
+      padding: 24px;
     }
 
     .lobby-card {
-      background-color: var(--bg-secondary);
-      border: 1px solid var(--border-medium);
+      background-color: var(--gm-surface);
+      border: 1px solid var(--gm-border);
       border-radius: var(--radius-lg);
-      padding: 32px;
+      padding: 36px;
       width: 100%;
-      max-width: 480px;
-      box-shadow: var(--shadow-lg);
+      max-width: 500px;
+      box-shadow: var(--shadow-3);
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 24px;
       text-align: center;
     }
 
@@ -39,57 +39,64 @@
       border-radius: var(--radius-md);
       overflow: hidden;
       position: relative;
-      border: 1px solid var(--border-subtle);
+      border: 1px solid var(--gm-border);
+      box-shadow: var(--shadow-2);
     }
 
     .lobby-preview-video {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transform: scaleX(-1); /* Natural self mirror */
+      transform: scaleX(-1);
     }
 
     .lobby-preview-badge {
       position: absolute;
-      bottom: 8px;
-      left: 8px;
-      background: rgba(0, 0, 0, 0.7);
-      padding: 4px 8px;
-      border-radius: var(--radius-sm);
-      font-size: 0.75rem;
+      bottom: 12px;
+      left: 12px;
+      background: rgba(32, 33, 36, 0.85);
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 0.78rem;
+      font-weight: 500;
       color: #fff;
     }
 
     .btn-join-meeting {
-      background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-hover));
+      background: linear-gradient(135deg, var(--gm-blue-fill), var(--gm-blue-hover));
       color: #fff;
       border: none;
-      border-radius: var(--radius-md);
-      padding: 14px 24px;
+      border-radius: var(--radius-pill);
+      padding: 14px 28px;
       font-size: 1rem;
-      font-weight: 700;
+      font-weight: 600;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-      transition: transform 0.15s ease;
+      box-shadow: var(--shadow-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all var(--transition-fast);
     }
 
     .btn-join-meeting:hover {
       transform: translateY(-2px);
+      box-shadow: var(--shadow-3);
     }
   </style>
-  <script type="module" crossorigin src="/EWARN-Nexus/assets/index-Csxct-X0.js"></script>
-  <link rel="stylesheet" crossorigin href="/EWARN-Nexus/assets/index-CPYM9dp_.css">
+  <script type="module" crossorigin src="/EWARN-Nexus/assets/index-DATnOWbN.js"></script>
+  <link rel="stylesheet" crossorigin href="/EWARN-Nexus/assets/index-CEX7rJaf.css">
 </head>
 <body>
 
   <!-- LOBBY / PRE-CALL SCREEN -->
   <div class="lobby-screen" id="lobbyScreen">
     <div class="lobby-card">
-      <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
-        <img src="/EWARN-Nexus/assets/ewarn-nexus-logo-EKI0iSl1.jpg" alt="Logo" style="height: 42px; background: #fff; padding: 2px 6px; border-radius: 6px;">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 14px;">
+        <img src="/EWARN-Nexus/assets/ewarn-nexus-logo-EKI0iSl1.jpg" alt="Logo" class="brand-logo-img">
         <div style="text-align: left;">
-          <div style="font-weight: 800; font-size: 1.15rem; color: #fff;">E-WARN NEXUS</div>
-          <div style="font-size: 0.75rem; color: #10b981; font-weight: 700;">Towards Smart Future!</div>
+          <div style="font-weight: 700; font-size: 1.2rem; color: #fff; letter-spacing: 0.3px;">E-WARN NEXUS</div>
+          <div style="font-size: 0.8rem; color: var(--gm-emerald); font-weight: 600;">Towards Smart Future!</div>
         </div>
       </div>
 
@@ -98,16 +105,16 @@
         <div class="lobby-preview-badge">Camera Preview</div>
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 12px; text-align: left;">
+      <div style="display: flex; flex-direction: column; gap: 14px; text-align: left;">
         <div>
-          <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; display: block;">Your Display Name</label>
-          <input type="text" id="lobbyUserName" class="form-input" placeholder="e.g. Rahul - Engineer">
+          <label class="form-label">Your Name</label>
+          <input type="text" id="lobbyUserName" class="form-input" placeholder="e.g. Soumya - Lead">
         </div>
 
         <div>
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-            <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Meeting Room ID</label>
-            <button type="button" id="btnGenerateNewRoomId" style="background: none; border: none; color: var(--accent-blue); font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <label class="form-label" style="margin: 0;">Meeting Code</label>
+            <button type="button" id="btnGenerateNewRoomId" style="background: none; border: none; color: var(--gm-blue); font-size: 0.78rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px;">
               🔄 Generate New
             </button>
           </div>
@@ -115,13 +122,13 @@
         </div>
 
         <div>
-          <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; display: block;">Room Passcode (Optional)</label>
+          <label class="form-label">Security Passcode (Optional)</label>
           <input type="password" id="lobbyRoomPasscode" class="form-input" placeholder="Optional security passcode">
         </div>
       </div>
 
       <button class="btn-join-meeting" id="btnEnterMeeting">
-        🚀 Enter Meeting Room
+        Join Meeting
       </button>
     </div>
   </div>
@@ -143,38 +150,37 @@
         </button>
       </div>
 
-      <div style="display: flex; gap: 8px; align-items: center;">
-        <button class="btn-ctrl" id="btnToggleSidebar" title="Toggle Chat & Files">
-          💬 <span class="hide-mobile">Chat</span>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <button class="btn-pill-ctrl" id="btnToggleSidebar" style="height: 40px; padding: 0 16px;">
+          💬 Chat
         </button>
       </div>
     </header>
 
     <!-- Main Workspace Stage -->
     <div class="main-stage">
-      <!-- Video Grid Viewport (Director Stage & Live Dock) -->
       <main class="video-canvas-container">
         <div class="video-grid" id="videoGrid" data-mode="stage" data-count="1">
-          <!-- Active video feeds mounted here -->
+          <!-- Active video feeds mounted here. Dynamic filmstrip below. -->
         </div>
       </main>
 
       <!-- Right Sidebar (Dual Chat) -->
       <aside class="sidebar collapsed" id="sidebar">
         <div class="sidebar-header">
-          <div style="font-weight: 700; font-size: 0.9rem;">Room Chat</div>
+          <div class="sidebar-title">In-Call Messages</div>
           <button class="sidebar-close-btn" id="btnCloseSidebar">✕</button>
         </div>
 
         <div class="sidebar-content">
           <div id="panelChat" style="display: flex; flex-direction: column; height: 100%;">
             <div class="chat-messages" id="chatMessages">
-              <div class="msg-item" style="background: rgba(30, 41, 59, 0.4); border-style: dashed;">
+              <div class="msg-item" style="border: 1px dashed var(--gm-border);">
                 <div class="msg-meta">
-                  <span class="msg-sender" style="color: var(--accent-emerald);">E-WARN Security</span>
+                  <span class="msg-sender" style="color: var(--gm-emerald);">Security Shield</span>
                   <span>Now</span>
                 </div>
-                <div class="msg-body" style="font-size: 0.8rem; color: var(--text-muted);">
+                <div class="msg-body" style="font-size: 0.8rem; color: var(--gm-text-secondary);">
                   Sovereign encrypted session. Zero third-party cloud APIs. Direct RAM messaging active.
                 </div>
               </div>
@@ -182,8 +188,8 @@
 
             <div class="chat-input-bar">
               <div class="chat-input-row">
-                <input type="text" id="chatInput" placeholder="Type a message..." autocomplete="off">
-                <button class="btn-send" id="btnSendMessage">Send</button>
+                <input type="text" id="chatInput" placeholder="Send a message to everyone..." autocomplete="off">
+                <button class="btn-send" id="btnSendMessage">➤</button>
               </div>
             </div>
           </div>
@@ -191,34 +197,41 @@
       </aside>
     </div>
 
-    <!-- Bottom Control Bar -->
+    <!-- Google Meet Floating Bottom Control Bar -->
     <footer class="bottom-dock">
       <div class="dock-left">
-        <button class="btn-ctrl" id="btnMicToggle">
-          🎤 <span class="btn-label">Mute</span>
+        <!-- Mic Toggle Circle Button -->
+        <button class="btn-round-ctrl" id="btnMicToggle" title="Toggle Microphone">
+          🎤
         </button>
-        <button class="btn-ctrl" id="btnShareScreen" title="Share entire display">
-          🖥️ <span class="btn-label">Entire Screen</span>
+        <!-- Camera Toggle / Screen Share -->
+        <button class="btn-round-ctrl" id="btnShareScreen" title="Share Screen">
+          🖥️
         </button>
       </div>
 
       <div class="dock-center">
-        <button class="btn-ctrl active" id="btnAddCamera" style="border-color: var(--accent-emerald);">
+        <!-- Modern Google Pill Controls -->
+        <button class="btn-pill-ctrl" id="btnAddCamera" style="border-color: rgba(52, 168, 83, 0.4);">
           ➕ Add USB Camera
         </button>
-        <button class="btn-ctrl" id="btnAddIPCamera" style="border-color: var(--accent-purple);">
+        <button class="btn-pill-ctrl" id="btnAddIPCamera" style="border-color: rgba(147, 52, 232, 0.4);">
           📡 Add IP Camera
         </button>
-        <button class="btn-ctrl" id="btnLayoutToggle">
+        <button class="btn-pill-ctrl" id="btnLayoutToggle">
           🗔 Stage View
         </button>
-        <button class="btn-ctrl" id="btnMobileMore">
-          ••• More
+
+        <!-- Mobile More Button -->
+        <button class="btn-round-ctrl" id="btnMobileMore" style="display: none;" title="More options">
+          •••
         </button>
       </div>
 
       <div class="dock-right">
-        <button class="btn-leave" id="btnLeaveMeeting">Leave</button>
+        <button class="btn-leave-call" id="btnLeaveMeeting">
+          <span>Leave Call</span>
+        </button>
       </div>
     </footer>
 
@@ -230,23 +243,20 @@
           <button class="modal-close" id="btnCloseMobileActions">✕</button>
         </div>
         <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
-          <button class="btn-ctrl" id="mBtnAddCamera" style="justify-content: center; padding: 12px;">
+          <button class="btn-pill-ctrl" id="mBtnAddCamera" style="justify-content: center; width: 100%;">
             ➕ Add USB / External Camera
           </button>
-          <button class="btn-ctrl" id="mBtnAddIPCamera" style="justify-content: center; padding: 12px;">
+          <button class="btn-pill-ctrl" id="mBtnAddIPCamera" style="justify-content: center; width: 100%;">
             📡 Add Local IP Camera
           </button>
-          <button class="btn-ctrl" id="mBtnShareScreen" style="justify-content: center; padding: 12px;">
-            🖥️ Share Entire Screen
-          </button>
-          <button class="btn-ctrl" id="mBtnLayoutToggle" style="justify-content: center; padding: 12px;">
+          <button class="btn-pill-ctrl" id="mBtnLayoutToggle" style="justify-content: center; width: 100%;">
             🗔 Switch View (Stage / Grid)
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Modal: Add USB / Hardware Camera -->
+    <!-- Modal: Add USB Camera -->
     <div class="modal-overlay" id="modalAddCamera">
       <div class="modal-box">
         <div class="modal-header">
@@ -256,7 +266,7 @@
         <div class="form-group">
           <label class="form-label">Select Video Hardware Device</label>
           <select class="form-select" id="cameraDeviceSelect">
-            <option value="">Searching for connected USB cameras...</option>
+            <option value="">Scanning hardware...</option>
           </select>
           <div class="form-helper">Plug in any USB webcam, document camera, or capture card.</div>
         </div>
@@ -265,13 +275,13 @@
           <input type="text" class="form-input" id="cameraCustomLabel" placeholder="e.g. Overhead Workbench, Site Cam">
         </div>
         <div class="modal-footer">
-          <button class="btn-ctrl" onclick="document.getElementById('modalAddCamera').classList.remove('open')">Cancel</button>
-          <button class="btn-ctrl active" id="btnConfirmAddCamera">Start Feed</button>
+          <button class="btn-pill-ctrl" style="height: 40px; padding: 0 16px;" onclick="document.getElementById('modalAddCamera').classList.remove('open')">Cancel</button>
+          <button class="btn-join-meeting" style="height: 40px; padding: 0 20px; font-size: 0.88rem;" id="btnConfirmAddCamera">Start Feed</button>
         </div>
       </div>
     </div>
 
-    <!-- Modal: Add IP / RTSP Camera -->
+    <!-- Modal: Add IP Camera -->
     <div class="modal-overlay" id="modalAddIPCamera">
       <div class="modal-box">
         <div class="modal-header">
@@ -288,13 +298,13 @@
           <input type="text" class="form-input" id="ipCameraName" placeholder="e.g. Gate Security Cam 01">
         </div>
         <div class="modal-footer">
-          <button class="btn-ctrl" onclick="document.getElementById('modalAddIPCamera').classList.remove('open')">Cancel</button>
-          <button class="btn-ctrl active" id="btnConfirmAddIPCamera">Connect Feed</button>
+          <button class="btn-pill-ctrl" style="height: 40px; padding: 0 16px;" onclick="document.getElementById('modalAddIPCamera').classList.remove('open')">Cancel</button>
+          <button class="btn-join-meeting" style="height: 40px; padding: 0 20px; font-size: 0.88rem;" id="btnConfirmAddIPCamera">Connect Feed</button>
         </div>
       </div>
     </div>
 
-    <!-- Live Toast Notifications -->
+    <!-- Toast Notifications -->
     <div class="toast-container" id="toastContainer"></div>
   </div>
 
