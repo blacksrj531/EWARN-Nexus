@@ -71,13 +71,59 @@ Unlike commercial platforms (LiveKit Cloud, Twilio, Agora, or Firebase), E-WARN 
 
 ## 🏗️ Architecture & Deployment
 
-```
-[ Client Browser (PC / Mobile) ]
-       │
-       ├─── WebRTC DTLS-SRTP (Audio / Video / Screen) ───► [ Peer Browser ]
-       │
-       └─── Sovereign WebSocket (Signaling / Chat) ──────► [ Render Node.js Hub ]
-                                                            wss://ewarn-nexus-signaling.onrender.com
+## 🏗️ Architecture & Signal Flow
+
+```mermaid
+flowchart TD
+    subgraph ClientA["Participant A (Browser / Mobile)"]
+        CamA["Primary Webcam (Mirrored)"]
+        USBA["Auxiliary USB Cam (Audio False)"]
+        ScreenA["Screen Share Feed"]
+        IPCamA["Local IP / RTSP Bridge (Canvas)"]
+        RTC_A["WebRTC PeerConnection"]
+        WS_A["WebSocket Client"]
+
+        CamA --> RTC_A
+        USBA --> RTC_A
+        ScreenA --> RTC_A
+        IPCamA --> RTC_A
+    end
+
+    subgraph Hub["Sovereign Signaling Hub (Node.js on Render)"]
+        Signaling["server.js (RAM Mesh State)"]
+        RoomGate["SHA-256 Passcode Gatekeeper"]
+        ChatRelay["Real-Time Broadcast Engine"]
+
+        Signaling --- RoomGate
+        Signaling --- ChatRelay
+    end
+
+    subgraph STUN["Public STUN Infrastructure"]
+        GoogleSTUN["stun.l.google.com:19302 (Zero Cost)"]
+    end
+
+    subgraph ClientB["Participant B (Browser / Mobile)"]
+        RTC_B["WebRTC PeerConnection"]
+        WS_B["WebSocket Client"]
+        Stage["Director Focus Stage"]
+        Filmstrip["Horizontal Filmstrip Tray"]
+        ZoomEngine["Multi-Touch Pinch-to-Zoom (1.0x - 4.5x)"]
+
+        RTC_B --> Stage
+        RTC_B --> Filmstrip
+        Stage --> ZoomEngine
+    end
+
+    %% Signaling Flow
+    WS_A <== "WSS (Offer / Answer / ICE / Chat)" ==> Signaling
+    Signaling <== "WSS (Targeted Relay)" ==> WS_B
+
+    %% NAT Traversal
+    RTC_A -. "ICE Discovery" .- GoogleSTUN
+    RTC_B -. "ICE Discovery" .- GoogleSTUN
+
+    %% Direct Media Flow
+    RTC_A <== "DTLS-SRTP P2P Encrypted Media Mesh (Zero Cloud Intermediary)" ==> RTC_B
 ```
 
 - **Frontend**: Hosted on GitHub Pages (`https://blacksrj531.github.io/EWARN-Nexus/`).
