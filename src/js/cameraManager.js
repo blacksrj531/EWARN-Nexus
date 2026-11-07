@@ -202,9 +202,10 @@ export class CameraManager {
    */
   _mountStreamTile(stream, meta) {
     const card = document.createElement('div');
-    card.className = `video-card ${meta.isMirrored ? 'mirrored' : ''}`;
+    card.className = 'video-card';
     card.id = `feed-${meta.id}`;
     card.dataset.streamId = meta.id;
+    card.dataset.type = meta.type || 'camera';
 
     const video = document.createElement('video');
     video.autoplay = true;

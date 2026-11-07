@@ -172,6 +172,7 @@ class EwarnNexusApp {
       card.className = 'video-card';
       card.id = cardId;
       card.dataset.streamId = cardId;
+      card.dataset.type = isScreen ? 'screen' : 'camera';
 
       const video = document.createElement('video');
       video.autoplay = true;

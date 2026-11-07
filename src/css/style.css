@@ -279,8 +279,14 @@ body {
   background: #000;
 }
 
-.video-card.mirrored video {
+/* User requirement: All camera feeds (self and remote participants) are mirrored on all devices */
+.video-card:not([data-type="screen"]) video {
   transform: scaleX(-1);
+}
+
+/* Screen sharing is explicitly kept unmirrored so presentations, documents, and code remain readable */
+.video-card[data-type="screen"] video {
+  transform: none !important;
 }
 
 .video-badge {
