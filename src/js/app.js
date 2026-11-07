@@ -157,16 +157,17 @@ class EwarnNexusApp {
     // PREVENT SELF-LOOP: Never create a remote card for yourself!
     if (targetId === this.userId) return;
 
-    // Use specific card ID per stream so screenshares and extra cameras get their own card
-    const streamIdentifier = (meta && meta.streamId) ? meta.streamId : remoteStream.id;
+    // Detect if this is a screen share
+    const isScreen = (meta && meta.track && meta.track.label && meta.track.label.toLowerCase().includes('screen')) ||
+                     (meta && meta.trackKind === 'video' && targetName.toLowerCase().includes('screen')) ||
+                     (meta && meta.streamId && meta.streamId.includes('screen'));
+
+    // Deterministic Card ID: 1 camera tile + 1 screen tile per peer
+    const streamIdentifier = isScreen ? 'screen' : 'cam';
     const cardId = `feed-remote-${targetId}-${streamIdentifier}`;
 
     let card = document.getElementById(cardId);
     if (!card) {
-      // Check if this incoming track is video or audio-only
-      const videoTracks = remoteStream.getVideoTracks();
-      const isVideo = videoTracks.length > 0;
-      
       card = document.createElement('div');
       card.className = 'video-card';
       card.id = cardId;
@@ -178,10 +179,6 @@ class EwarnNexusApp {
       video.srcObject = remoteStream;
       // Do not mute remote participants so you can hear them!
       video.muted = false;
-
-      // Detect if this is a screen share or camera stream
-      const isScreen = (meta && meta.track && meta.track.label && meta.track.label.toLowerCase().includes('screen')) ||
-                       (meta && meta.trackKind === 'video' && targetName.toLowerCase().includes('screen'));
 
       const tagClass = isScreen ? 'tag-screen' : 'tag-webcam';
       const tagText = isScreen ? 'SCREEN' : 'REMOTE';
@@ -251,9 +248,9 @@ class EwarnNexusApp {
       this.cameraManager._applyLayoutMode();
       this._showToast(isScreen ? `${targetName} started presenting screen` : `${targetName} joined the call!`);
     } else {
-      // Card already exists, ensure srcObject has the latest track
+      // Card already exists: update video source so track switches cleanly without duplicates
       const existingVideo = card.querySelector('video');
-      if (existingVideo && existingVideo.srcObject !== remoteStream) {
+      if (existingVideo) {
         existingVideo.srcObject = remoteStream;
         existingVideo.play().catch(e => console.warn('Autoplay prevented:', e));
       }
@@ -371,7 +368,24 @@ class EwarnNexusApp {
     }
 
     // Entire Screen Share
+    let activeScreenStream = null;
+    let activeScreenId = null;
+
     const handleScreenShare = async () => {
+      // If already sharing screen, toggle off
+      if (activeScreenStream) {
+        activeScreenStream.getTracks().forEach(t => t.stop());
+        if (activeScreenId) {
+          this.cameraManager.stopStream(activeScreenId);
+          this.client.unregisterLocalStream(activeScreenId);
+        }
+        activeScreenStream = null;
+        activeScreenId = null;
+        btnShareScreen?.classList.remove('danger');
+        this._showToast('Screen sharing stopped');
+        return;
+      }
+
       try {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
           alert('Screen sharing is not supported by your mobile browser. Please use Chrome/Edge on Desktop.');
@@ -384,7 +398,11 @@ class EwarnNexusApp {
         });
 
         const screenTrack = screenStream.getVideoTracks()[0];
-        const screenId = 'screen-' + Date.now();
+        const screenId = 'screen-' + this.userId;
+        activeScreenStream = screenStream;
+        activeScreenId = screenId;
+
+        btnShareScreen?.classList.add('danger');
 
         this.cameraManager._mountStreamTile(screenStream, {
           id: screenId,
@@ -399,11 +417,16 @@ class EwarnNexusApp {
         this.cameraManager.setFeaturedStream(screenId);
 
         // Broadcast to peers
-        this.client.registerLocalStream(screenStream);
+        await this.client.registerLocalStream(screenStream);
 
-        // Listen for native stop button
+        // Listen for native browser stop button
         screenTrack.onended = () => {
           this.cameraManager.stopStream(screenId);
+          this.client.unregisterLocalStream(screenId);
+          activeScreenStream = null;
+          activeScreenId = null;
+          btnShareScreen?.classList.remove('danger');
+          this._showToast('Screen sharing ended');
         };
       } catch (e) {
         console.warn('Screen share canceled or not allowed', e);

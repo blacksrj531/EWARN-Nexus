@@ -261,8 +261,32 @@ export class SovereignWebRTCClient {
   }
 
   /**
-   * Hot-swap video track for Camera Flip (Front ⇄ Rear) without dropping call
+   * Stop & remove a local stream from WebRTC sender pipeline
    */
+  async unregisterLocalStream(streamId) {
+    this.localStreams = this.localStreams.filter(s => s.id !== streamId);
+
+    for (const [targetId, peerObj] of this.peers) {
+      try {
+        const senders = peerObj.pc.getSenders();
+        senders.forEach((sender) => {
+          if (sender.track && sender.track.readyState === 'ended') {
+            peerObj.pc.removeTrack(sender);
+          }
+        });
+
+        // Trigger renegotiation to notify peers that stream was removed
+        const offer = await peerObj.pc.createOffer();
+        await peerObj.pc.setLocalDescription(offer);
+        this._sendSignal(targetId, {
+          type: 'OFFER',
+          sdp: peerObj.pc.localDescription
+        });
+      } catch (err) {
+        console.error(`[E-WARN Client] Stream unregister renegotiation error with ${targetId}:`, err);
+      }
+    }
+  }
   async replaceVideoTrack(newTrack) {
     if (!newTrack) return;
     for (const [targetId, peerObj] of this.peers) {
