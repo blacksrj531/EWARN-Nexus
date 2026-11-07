@@ -202,7 +202,7 @@ export class CameraManager {
    */
   _mountStreamTile(stream, meta) {
     const card = document.createElement('div');
-    card.className = 'video-card';
+    card.className = `video-card ${meta.isPrimary ? 'self-feed' : ''}`;
     card.id = `feed-${meta.id}`;
     card.dataset.streamId = meta.id;
     card.dataset.type = meta.type || 'camera';

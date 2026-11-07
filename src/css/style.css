@@ -277,15 +277,22 @@ body {
   height: 100%;
   object-fit: cover;
   background: #000;
+  /* Default: normal unmirrored camera orientation */
+  transform: none;
 }
 
-/* User requirement: All camera feeds (self and remote participants) are mirrored on all devices */
-.video-card:not([data-type="screen"]) video {
-  transform: scaleX(-1);
+/* 
+ * Industry Standard (Google Meet / Zoom / Microsoft Teams):
+ * ONLY the SELF user's preview and webcam feed is mirrored (like looking in a mirror).
+ * Remote participants are viewed naturally unmirrored (true-to-life orientation).
+ */
+.video-card.self-feed video,
+.lobby-preview-video {
+  transform: scaleX(-1) !important;
 }
 
-/* Screen sharing is explicitly kept unmirrored so presentations, documents, and code remain readable */
-.video-card[data-type="screen"] video {
+/* Remote participants, IP cameras, and screen shares are always natural unmirrored */
+.video-card:not(.self-feed) video {
   transform: none !important;
 }
 
