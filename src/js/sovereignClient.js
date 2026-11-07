@@ -59,13 +59,17 @@ export class SovereignWebRTCClient {
           case 'ROOM_STATE':
             // Existing participants in the room! Initiate connections to them
             for (const peer of msg.participants) {
-              console.log(`[E-WARN Client] Calling existing participant: ${peer.userName} (${peer.userId})`);
-              await this._initiatePeerCall(peer.userId, peer.userName);
+              if (peer.userId !== this.userId) {
+                console.log(`[E-WARN Client] Calling existing participant: ${peer.userName} (${peer.userId})`);
+                await this._initiatePeerCall(peer.userId, peer.userName);
+              }
             }
             break;
 
           case 'PEER_JOINED':
-            console.log(`[E-WARN Client] New participant entered: ${msg.userName} (${msg.userId})`);
+            if (msg.userId !== this.userId) {
+              console.log(`[E-WARN Client] New participant entered: ${msg.userName} (${msg.userId})`);
+            }
             break;
 
           case 'WEBRTC_SIGNAL':

@@ -154,6 +154,9 @@ class EwarnNexusApp {
   }
 
   _handleRemoteStream(targetId, targetName, remoteStream) {
+    // PREVENT SELF-LOOP: Never create a remote card for yourself!
+    if (targetId === this.userId) return;
+
     let card = document.getElementById(`feed-remote-${targetId}`);
     if (!card) {
       card = document.createElement('div');
