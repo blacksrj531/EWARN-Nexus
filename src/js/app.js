@@ -395,15 +395,46 @@ class EwarnNexusApp {
       }
 
       try {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
-          alert('Screen sharing is not supported by your mobile browser. Please use Chrome/Edge on Desktop.');
-          return;
+        let screenStream = null;
+
+        // Modern Mobile Screen Sharing Check
+        if (navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function') {
+          try {
+            screenStream = await navigator.mediaDevices.getDisplayMedia({
+              video: {
+                cursor: 'always',
+                displaySurface: 'monitor'
+              },
+              audio: false
+            });
+          } catch (displayErr) {
+            console.warn('[E-WARN] getDisplayMedia error:', displayErr);
+            // Detect user cancel vs unsupported platform error
+            if (displayErr.name === 'NotAllowedError') {
+              this._showToast('Screen sharing was cancelled');
+              return;
+            } else if (displayErr.name === 'NotSupportedError' || displayErr.name === 'TypeError') {
+              throw displayErr;
+            } else {
+              throw displayErr;
+            }
+          }
         }
 
-        const screenStream = await navigator.mediaDevices.getDisplayMedia({
-          video: { cursor: 'always' },
-          audio: false // Safer across platforms that don't allow system audio loopback
-        });
+        if (!screenStream) {
+          // If the OS strictly blocks getDisplayMedia in mobile browsers
+          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+          const isAndroid = /Android/.test(navigator.userAgent);
+          
+          if (isIOS) {
+            alert('Apple iOS blocks web browsers from recording the home screen. On iPhone/iPad, use Safari or open the meeting on your PC/Laptop.');
+          } else if (isAndroid) {
+            alert('Your Android browser does not allow tab screen capture. Please update Chrome or share your screen from a Desktop browser.');
+          } else {
+            alert('Screen capture is not supported on this device/browser.');
+          }
+          return;
+        }
 
         const screenTrack = screenStream.getVideoTracks()[0];
         const screenId = 'screen-' + this.userId;
